@@ -1,6 +1,5 @@
 """
 Python service library for talking to a BlueIris Server
-
 Modified from magapp/blueiriscmd
 """
 import hashlib
