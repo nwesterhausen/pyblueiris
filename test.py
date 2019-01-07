@@ -1,8 +1,8 @@
-import logging, sys
+import logging, sys, asyncio
 
 import blueiris as BI
 
-from .test_config import USER, PASS, PROTOCOL, HOST
+from test_config import USER, PASS, PROTOCOL, HOST
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -12,10 +12,13 @@ logging.basicConfig(
 
 MY_LOGGER = logging.getLogger(__name__)
 
-def tests():
+
+async def tests():
     blue = BI.BlueIris(USER, PASS, PROTOCOL, HOST, debug=True, logger=MY_LOGGER)
-    blue.selfTest()
+    await blue.command("status")
+    # blue.selfTest()
 
 
 if __name__ == "__main__":
-    tests()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(tests())

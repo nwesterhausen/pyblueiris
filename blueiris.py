@@ -7,6 +7,9 @@ import hashlib
 import json
 import requests
 
+import aiohttp
+import asyncio
+
 from enum import Enum
 
 UNKNOWN_DICT = {'-1': ''}
@@ -143,6 +146,9 @@ class BlueIris:
         self._profiles = UNKNOWN_LIST
         self._log = UNKNOWN_LIST
         self.session = requests.session()
+
+        self.asession = aiohttp.ClientSession()
+
         self.debug = debug
         self.logger = logger
 
@@ -358,6 +364,33 @@ class BlueIris:
                 return "None"
             """Respond with 'Error' in the event we get here and had a bad result"""
             return "Error"
+
+    async def command(self, command, params=None):
+        """Post a command to the server"""
+        if params is None:
+            params = dict()
+        args = {"session": self.blueiris_session, "response": self.response, "cmd": command}
+        args.update(params)
+
+        if self.debug:
+            self.logger.debug("Sending async command: {} {}".format(command, params))
+
+
+        try:
+            async with self.post(args) as rjson:
+                resp = await rjson["data"]
+                return resp
+        except KeyError:
+            """It's possible that there was no data to be returned. In that case respond 'None'"""
+            self.logger.error("Failed request: {} {}".format(command, args))
+
+    async def post(self, data):
+        """Async method that posts json to the Blue Iris server"""
+        async with self.asession as session:
+            async with session.post(self.url, data=json.dumps(data)) as response:
+                if self.debug:
+                    self.logger.info("async {} command returned {}".format(json["cmd"], response.status))
+                return await response.json()
 
     def selfTest(self):
         if self.debug:
