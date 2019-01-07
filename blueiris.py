@@ -116,19 +116,11 @@ class CAMConfig(Enum):
             return any(value == item.value for item in cls)
 
 
-class LogSeverity(Enum):
-    INFO = 0
-    WARN = 1
-    ERROR = 2
-
-    @classmethod
-    def has_value(cls, value):
-        if isinstance(value, str):
-            """We were provided a string, let's check it"""
-            return value in cls.__members__
-        else:
-            """Assume we were given an int corresponding to the value assigned in this class"""
-            return any(value == item.value for item in cls)
+LOG_SEVERITY = {
+    0: "INFO",
+    1: "WARNING",
+    2: "ERROR"
+}
 
 
 class BlueIris:
