@@ -2,6 +2,7 @@
 Python service library for talking to a BlueIris Server
 Modified from magapp/blueiriscmd
 """
+import logging
 import hashlib
 import json
 import requests
@@ -12,6 +13,8 @@ UNKNOWN_DICT = {'-1': ''}
 UNKNOWN_LIST = [{'-1': ''}]
 UNKNOWN_HASH = -1
 UNKNOWN_STRING = "noname"
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class Signal(Enum):
@@ -130,7 +133,7 @@ class LogSeverity(Enum):
 
 class BlueIris:
 
-    def __init__(self, user, password, protocol, host, port="", debug=False):
+    def __init__(self, user, password, protocol, host, port="", debug=False, logger=_LOGGER):
         """Define an abstract blue iris server."""
         if port != "":
             host = "{}:{}".format(host, port)
@@ -149,10 +152,11 @@ class BlueIris:
         self._log = UNKNOWN_LIST
         self.session = requests.session()
         self.debug = debug
+        self.logger = logger
 
         session_info = self.login()
         if self.debug:
-            print("Session info: {}".format(session_info))
+            self.logger.info("Session info: {}".format(session_info))
         self._name = session_info.get('system name', UNKNOWN_STRING)
         self._profiles = session_info.get('profiles', UNKNOWN_LIST)
         self._am_admin = session_info.get('admin', False)
@@ -266,8 +270,8 @@ class BlueIris:
     def set_signal(self, signal):
         """Set the active traffic signal value"""
         if not Signal.has_value(signal):
-            print("Unable to set signal to unknown value {}. (Use one of {})".format(signal,
-                                                                                     Signal.__members__.keys()))
+            self.logger.error("Unable to set signal to unknown value {}. (Use one of {})".format(signal,
+                                                                                                 Signal.__members__.keys()))
         else:
             if isinstance(signal, str):
                 self.cmd("status", {"signal": Signal.__members__.get(signal)})
@@ -277,14 +281,14 @@ class BlueIris:
     def set_schedule(self, schedule_name):
         """Set the active schedule"""
         if schedule_name not in self._schedules:
-            print("Bad schedule name '{}'. (Use one of {})".format(schedule_name, self._schedules))
+            self.logger.error("Bad schedule name '{}'. (Use one of {})".format(schedule_name, self._schedules))
         else:
             self.cmd("status", {"schedule": schedule_name})
 
     def set_pofile(self, profile_name):
         """Set the active profile"""
         if profile_name not in self._profiles:
-            print("Bad profile name '{}'. (Use one of {})".format(profile_name, self._profiles))
+            self.logger.error("Bad profile name '{}'. (Use one of {})".format(profile_name, self._profiles))
         else:
             self.cmd("status", {"profile": profile_name})
 
@@ -295,9 +299,9 @@ class BlueIris:
     def ptz(self, camera_code, ptz_action: int):
         """Execute a PTZ command on a camera"""
         if camera_code not in self._camcodes:
-            print("Bad camera code '{}'. (Use one of {})".format(camera_code, self._camcodes))
+            self.logger.error("Bad camera code '{}'. (Use one of {})".format(camera_code, self._camcodes))
         elif not PTZCommand.has_value(ptz_action):
-            print("Bad PTZ command {}. (Use one of {})".format(ptz_action, PTZCommand.__members__.keys()))
+            self.logger.error("Bad PTZ command {}. (Use one of {})".format(ptz_action, PTZCommand.__members__.keys()))
         else:
             if isinstance(ptz_action, str):
                 self.cmd("ptz", {"camera": camera_code, "button": PTZCommand.__members__.get(ptz_action), "updown": 0})
@@ -307,9 +311,9 @@ class BlueIris:
     def trigger(self, camera_code):
         """Trigger the motion sensor on a specific camera"""
         if not self._am_admin:
-            print("Need to be admin to run this command!")
+            self.logger.warning("Need to be admin to run this command! Aborting.")
         elif camera_code not in self._camcodes:
-            print("Bad camera code '{}'. (Use one of {})".format(camera_code, self._camcodes))
+            self.logger.error("Bad camera code '{}'. (Use one of {})".format(camera_code, self._camcodes))
         else:
             self.cmd("trigger", {"camera": camera_code})
 
@@ -324,7 +328,7 @@ class BlueIris:
         """
         r = self.session.post(self.url, data=json.dumps({"cmd": "login"}))
         if r.status_code != 200:
-            print("Bad response ({}) when trying to contact {}, {}".format(r.status_code, self.url, r.text))
+            self.logger.info("Bad response ({}) when trying to contact {}, {}".format(r.status_code, self.url, r.text))
         else:
             self.blueiris_session = r.json()["session"]
             self.generate_response()
@@ -332,7 +336,7 @@ class BlueIris:
                                   data=json.dumps(
                                       {"cmd": "login", "session": self.blueiris_session, "response": self.response}))
             if r.status_code != 200 or r.json()["result"] != "success":
-                print("Bad login {} :{}".format(r.status_code, r.text))
+                self.logger.info("Bad login {} :{}".format(r.status_code, r.text))
             else:
                 return r.json()["data"]
 
@@ -343,13 +347,16 @@ class BlueIris:
         args = {"session": self.blueiris_session, "response": self.response, "cmd": cmd}
         args.update(params)
 
+        if self.debug:
+            self.logger.debug("Sending command {}: {}".format(cmd, params))
+
         r = self.session.post(self.url, data=json.dumps(args))
         if r.status_code != 200:
-            print("Unsuccessful response. {}:{}".format(r.status_code, r.text))
+            self.logger.error("Unsuccessful response. {}:{}".format(r.status_code, r.text))
             return dict()
 
         if self.debug:
-            print(str(r.json()))
+            self.logger.info(str(r.json()))
 
         try:
             return r.json()["data"]
@@ -359,3 +366,12 @@ class BlueIris:
                 return "None"
             """Respond with 'Error' in the event we get here and had a bad result"""
             return "Error"
+
+    def selfTest(self):
+        if self.debug:
+            self.logger.info("Updating all values")
+            self.update_alertlist()
+            self.update_camlist()
+            self.update_cliplist()
+            self.update_log()
+            self.update_status()
