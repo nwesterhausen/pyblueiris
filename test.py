@@ -20,6 +20,7 @@ async def tests():
         await blue.async_setup_session()
         await blue.async_update_status()
         await blue.async_update_camlist()
+        await blue.async_update_cliplist()
 
         pprint.pprint(blue.attributes)
 

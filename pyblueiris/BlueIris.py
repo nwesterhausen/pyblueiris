@@ -54,6 +54,7 @@ class BlueIris:
                     self._attributes["clips_allowed"], self._attributes["schedules"], self._attributes["version"]))
 
     async def async_update_status(self):
+        """Updates Blue Iris status"""
         if not self.am_logged_in:
             await self.async_setup_session()
 
@@ -67,6 +68,7 @@ class BlueIris:
             self._attributes["profile"] = self._attributes["profiles"][status["profile"]]
 
     async def async_update_camlist(self):
+        """Updates known cameras on Blue Iris"""
         if not self.am_logged_in:
             await self.async_setup_session()
 
@@ -74,4 +76,27 @@ class BlueIris:
         self.attributes["cameras"] = dict()
         for cam in camlist:
             self.attributes["cameras"][cam.get('optionValue')] = cam.get('optionDisplay')
+
+    async def async_update_cliplist(self, camera="Index"):
+        """Updates list of available clips"""
+        if not self.am_logged_in:
+            await self.async_setup_session()
+
+        if not self._attributes["cameras"]:
+            await self.async_update_camlist()
+
+        if "cliplist" not in self._attributes:
+            self._attributes["cliplist"] = dict()
+            for cam_shortname in self._attributes["cameras"].keys():
+                if cam_shortname not in ['@Index','Index']:
+                    self._attributes["cliplist"][cam_shortname] = []
+
+        if camera not in self._attributes["cameras"]:
+            self.logger.warning("Given invalid shortname for camera ({}). Using default value 'Index' instead.".format(camera))
+            camera = "Index"
+
+        cliplist = await self.client.cmd("cliplist", {"camera": camera})
+
+        for clip in cliplist:
+            self._attributes["cliplist"][clip["camera"]].append(clip)
 
