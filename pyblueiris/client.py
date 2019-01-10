@@ -40,10 +40,11 @@ class BlueIrisClient:
 
     def generate_response(self):
         """Update self.username, self.password and self.blueiris_session before calling this."""
-        if self.debug:
-            self.logger.debug("Generating a response hash with session: {}".format(self.blueiris_session))
         self.response = hashlib.md5(
             "{}:{}:{}".format(self.user, self.blueiris_session, self.password).encode('utf-8')).hexdigest()
+        if self.debug:
+            self.logger.debug("Generating a response hash from session.")
+            self.logger.debug("Session: {}, Response: {}".format(self.blueiris_session,self.response))
 
     async def cmd(self, command, params=None):
         if params is None:
@@ -56,7 +57,7 @@ class BlueIrisClient:
             self.logger.debug("Full command JSON data: {}".format(args))
 
         try:
-            async with self.async_websession.post(self.url, data=args) as resp:
+            async with self.async_websession.post(self.url, data=json.dumps(args)) as resp:
                 rjson = await resp.json()
                 if self.debug:
                     self.logger.debug("Full json response: {}".format(rjson))
