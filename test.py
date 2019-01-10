@@ -1,8 +1,9 @@
 import logging, sys, asyncio
 
-import blueiris as BI
+import pyblueiris as BI
 
 from test_config import USER, PASS, PROTOCOL, HOST
+from aiohttp import ClientSession
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -14,9 +15,11 @@ MY_LOGGER = logging.getLogger(__name__)
 
 
 async def tests():
-    blue = BI.BlueIris(USER, PASS, PROTOCOL, HOST, debug=True, logger=MY_LOGGER)
-    await blue.command("status")
-    # blue.selfTest()
+    async with ClientSession(raise_for_status=True) as sess:
+        blue = BI.BlueIrisClient(sess, USER, PASS, PROTOCOL, HOST, debug=True, logger=MY_LOGGER)
+        await blue.login()
+        await blue.cmd("status")
+        # blue.selfTest()
 
 
 if __name__ == "__main__":
