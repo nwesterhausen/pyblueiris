@@ -78,7 +78,7 @@ class BlueIris:
             self.attributes["cameras"][cam.get('optionValue')] = cam.get('optionDisplay')
 
     async def async_update_cliplist(self, camera="Index"):
-        """Updates list of available clips"""
+        """Updates list of available clips. Provide a camera name to update an individual camera"""
         if not self.am_logged_in:
             await self.async_setup_session()
 
@@ -88,11 +88,12 @@ class BlueIris:
         if "cliplist" not in self._attributes:
             self._attributes["cliplist"] = dict()
             for cam_shortname in self._attributes["cameras"].keys():
-                if cam_shortname not in ['@Index','Index']:
+                if cam_shortname not in ['@Index', 'Index']:
                     self._attributes["cliplist"][cam_shortname] = []
 
         if camera not in self._attributes["cameras"]:
-            self.logger.warning("Given invalid shortname for camera ({}). Using default value 'Index' instead.".format(camera))
+            self.logger.warning(
+                "Given invalid shortname for camera ({}). Using default value 'Index' instead.".format(camera))
             camera = "Index"
 
         cliplist = await self.client.cmd("cliplist", {"camera": camera})
@@ -100,3 +101,26 @@ class BlueIris:
         for clip in cliplist:
             self._attributes["cliplist"][clip["camera"]].append(clip)
 
+    async def async_update_alertlist(self, camera="Index"):
+        """Updates list of alerts. Provide a camera name to update an individual camera"""
+        if not self.am_logged_in:
+            await self.async_setup_session()
+
+        if not self._attributes["cameras"]:
+            await self.async_update_camlist()
+
+        if "alertlist" not in self._attributes:
+            self._attributes["alertlist"] = dict()
+            for cam_shortname in self._attributes["cameras"].keys():
+                if cam_shortname not in ['@Index', 'Index']:
+                    self._attributes["alertlist"][cam_shortname] = []
+
+        if camera not in self._attributes["cameras"]:
+            self.logger.warning(
+                "Given invalid shortname for camera ({}). Using default value 'Index' instead.".format(camera))
+            camera = "Index"
+
+        alertlist = await self.client.cmd("alertlist", {"camera": camera})
+
+        for alert in alertlist:
+            self._attributes["alertlist"][alert["camera"]].append(alert)

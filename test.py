@@ -21,6 +21,7 @@ async def tests():
         await blue.async_update_status()
         await blue.async_update_camlist()
         await blue.async_update_cliplist()
+        await blue.async_update_alertlist()
 
         pprint.pprint(blue.attributes)
 
