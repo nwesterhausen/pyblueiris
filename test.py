@@ -18,12 +18,7 @@ async def tests():
     async with ClientSession(raise_for_status=True) as sess:
         blue = BI.BlueIris(sess, USER, PASS, PROTOCOL, HOST, debug=True, logger=MY_LOGGER)
         await blue.setup_session()
-        await blue.update_status()
-        await blue.update_camlist()
-        await blue.update_cliplist()
-        await blue.update_alertlist()
-        await blue.update_log()
-        await blue.update_sysconfig()
+        await blue.update_all_information()
 
         pprint.pprint(blue.attributes)
 

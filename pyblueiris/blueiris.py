@@ -144,3 +144,14 @@ class BlueIris:
             sysconfig = await self.client.cmd("sysconfig")
             self._attributes["sysconfig"] = sysconfig
 
+    async def update_all_information(self):
+        """Update all the information we can get from the Blue Iris server"""
+        if not self.am_logged_in:
+            await self.setup_session()
+
+        await self.update_status()
+        await self.update_camlist()
+        await self.update_cliplist()
+        await self.update_alertlist()
+        await self.update_log()
+        await self.update_sysconfig()
