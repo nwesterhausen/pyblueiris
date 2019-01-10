@@ -110,7 +110,7 @@ class BlueIris:
                     self._attributes["alertlist"][cam_shortname] = []
 
         alertlist = await self.client.cmd("alertlist", {"camera": camera, "reset": "false"})
-        if alertlist is None:
+        if alertlist is not dict:
             alertlist = dict()
         for alert in alertlist:
             self._attributes["alertlist"][alert["camera"]].append(alert)
@@ -161,7 +161,8 @@ class BlueIris:
     async def send_camera_reset(self, camera):
         """Send camconfig command to reset camera"""
         if await self.is_valid_camera(camera):
-            await self.client.cmd("camconfig", {"camera": camera, "reset": "true"})
+            resp = await self.client.cmd("camconfig", {"camera": camera, "reset": "true"})
+            return resp["result"]
 
     async def send_camera_enable(self, camera):
         """Send camconfig command to enable camera"""
