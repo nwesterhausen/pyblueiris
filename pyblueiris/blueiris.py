@@ -82,22 +82,14 @@ class BlueIris:
 
     async def update_cliplist(self, camera="Index"):
         """Updates list of available clips. Provide a camera name to update an individual camera"""
-        if not self.am_logged_in:
-            await self.setup_session()
-
-        if not self._attributes["cameras"]:
-            await self.update_camlist()
+        if not await self.is_valid_camera(camera):
+            camera = "Index"
 
         if "cliplist" not in self._attributes:
             self._attributes["cliplist"] = dict()
             for cam_shortname in self._attributes["cameras"].keys():
                 if cam_shortname not in ['@Index', 'Index']:
                     self._attributes["cliplist"][cam_shortname] = []
-
-        if camera not in self._attributes["cameras"]:
-            self.logger.warning(
-                "Given invalid shortname for camera ({}). Using default value 'Index' instead.".format(camera))
-            camera = "Index"
 
         cliplist = await self.client.cmd("cliplist", {"camera": camera})
 
@@ -108,22 +100,14 @@ class BlueIris:
 
     async def update_alertlist(self, camera="Index"):
         """Updates list of alerts. Provide a camera name to update an individual camera"""
-        if not self.am_logged_in:
-            await self.setup_session()
-
-        if not self._attributes["cameras"]:
-            await self.update_camlist()
+        if not await self.is_valid_camera(camera):
+            camera = "Index"
 
         if "alertlist" not in self._attributes:
             self._attributes["alertlist"] = dict()
             for cam_shortname in self._attributes["cameras"].keys():
                 if cam_shortname not in ['@Index', 'Index']:
                     self._attributes["alertlist"][cam_shortname] = []
-
-        if camera not in self._attributes["cameras"]:
-            self.logger.warning(
-                "Given invalid shortname for camera ({}). Using default value 'Index' instead.".format(camera))
-            camera = "Index"
 
         alertlist = await self.client.cmd("alertlist", {"camera": camera, "reset": "false"})
         if alertlist is None:
@@ -162,14 +146,29 @@ class BlueIris:
         await self.update_log()
         await self.update_sysconfig()
 
-    async def send_camera_reset(self, camera):
-        """Send camconfig command to reset camera"""
+    async def is_valid_camera(self, cam_shortcode):
+        """Checks if camera shortcode is a valid option"""
         if not self.am_logged_in:
             await self.setup_session()
         if not self._attributes["cameras"]:
             await self.update_camlist()
-        if camera not in self._attributes["cameras"]:
+        if cam_shortcode not in self._attributes["cameras"]:
             self.logger.error(
-                "{}: invalid camera provided. Choose one of {}".format(camera, self._attributes["cameras"].keys()))
-        else:
+                "{}: invalid camera provided. Choose one of {}".format(cam_shortcode, self._attributes["cameras"].keys()))
+            return False
+        return True
+
+    async def send_camera_reset(self, camera):
+        """Send camconfig command to reset camera"""
+        if await self.is_valid_camera(camera):
             await self.client.cmd("camconfig", {"camera": camera, "reset": "true"})
+
+    async def send_camera_enable(self, camera):
+        """Send camconfig command to enable camera"""
+        if await self.is_valid_camera(camera):
+            await self.client.cmd("camconfig", {"camera": camera, "enable": "true"})
+
+    async def send_camera_disable(self, camera):
+        """Send camconfig command to enable camera"""
+        if await self.is_valid_camera(camera):
+            await self.client.cmd("camconfig", {"camera": camera, "enable": "false"})
