@@ -120,7 +120,7 @@ class BlueIris:
                 "Given invalid shortname for camera ({}). Using default value 'Index' instead.".format(camera))
             camera = "Index"
 
-        alertlist = await self.client.cmd("alertlist", {"camera": camera})
+        alertlist = await self.client.cmd("alertlist", {"camera": camera, "reset": "false"})
 
         for alert in alertlist:
             self._attributes["alertlist"][alert["camera"]].append(alert)
