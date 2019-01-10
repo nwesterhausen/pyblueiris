@@ -20,7 +20,7 @@ async def tests():
         await blue.setup_session()
         await blue.update_all_information()
 
-        pprint.pprint(blue.attributes)
+        pprint.pprint(blue.attributes.get("camconfig"))
 
 
 if __name__ == "__main__":

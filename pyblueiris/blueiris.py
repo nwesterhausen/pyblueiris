@@ -74,6 +74,9 @@ class BlueIris:
 
         camlist = await self.client.cmd("camlist")
         self._attributes["cameras"] = dict()
+        self._attributes["camconfig"] = camlist
+        if camlist is None:
+            camlist = dict()
         for cam in camlist:
             self._attributes["cameras"][cam.get('optionValue')] = cam.get('optionDisplay')
 
@@ -98,6 +101,8 @@ class BlueIris:
 
         cliplist = await self.client.cmd("cliplist", {"camera": camera})
 
+        if cliplist is None:
+            cliplist = dict()
         for clip in cliplist:
             self._attributes["cliplist"][clip["camera"]].append(clip)
 
@@ -121,7 +126,8 @@ class BlueIris:
             camera = "Index"
 
         alertlist = await self.client.cmd("alertlist", {"camera": camera, "reset": "false"})
-
+        if alertlist is None:
+            alertlist = dict()
         for alert in alertlist:
             self._attributes["alertlist"][alert["camera"]].append(alert)
 
@@ -155,3 +161,15 @@ class BlueIris:
         await self.update_alertlist()
         await self.update_log()
         await self.update_sysconfig()
+
+    async def send_camera_reset(self, camera):
+        """Send camconfig command to reset camera"""
+        if not self.am_logged_in:
+            await self.setup_session()
+        if not self._attributes["cameras"]:
+            await self.update_camlist()
+        if camera not in self._attributes["cameras"]:
+            self.logger.error(
+                "{}: invalid camera provided. Choose one of {}".format(camera, self._attributes["cameras"].keys()))
+        else:
+            await self.client.cmd("camconfig", {"camera": camera, "reset": "true"})
