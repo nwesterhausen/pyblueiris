@@ -19,6 +19,7 @@ async def tests():
         blue = BI.BlueIris(sess, USER, PASS, PROTOCOL, HOST, debug=True, logger=MY_LOGGER)
         await blue.async_setup_session()
         await blue.async_update_status()
+        await blue.async_update_camlist()
 
         pprint.pprint(blue.attributes)
 

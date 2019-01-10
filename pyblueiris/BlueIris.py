@@ -66,3 +66,12 @@ class BlueIris:
         else:
             self._attributes["profile"] = self._attributes["profiles"][status["profile"]]
 
+    async def async_update_camlist(self):
+        if not self.am_logged_in:
+            await self.async_setup_session()
+
+        camlist = await self.client.cmd("camlist")
+        self.attributes["cameras"] = dict()
+        for cam in camlist:
+            self.attributes["cameras"][cam.get('optionValue')] = cam.get('optionDisplay')
+
