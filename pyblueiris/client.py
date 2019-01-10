@@ -7,25 +7,17 @@ from aiohttp import ClientSession, ClientError
 
 UNKNOWN_HASH = -1
 
-_LOGGER = logging.getLogger(__name__)
-
-
 class BlueIrisClient:
 
-    def __init__(self, session: ClientSession, user, password, protocol, host, port="", debug=False, logger=_LOGGER):
+    def __init__(self, session: ClientSession, endpointurl, debug: bool, logger: logging.Logger):
         self.async_websession = session
-        """Define an abstract blue iris server."""
-        if port != "":
-            host = "{}:{}".format(host, port)
-        self.url = "{}://{}/json".format(protocol, host)
-        self.user = user
-        self.password = password
+        self.url = endpointurl
         self.blueiris_session = UNKNOWN_HASH
         self.response = UNKNOWN_HASH
         self.debug = debug
         self.logger = logger
 
-    async def login(self):
+    async def login(self, username, password):
         """
         Send hashed username/password to validate session
         Returns system name and dictionary of profiles OR nothing
@@ -35,13 +27,13 @@ class BlueIrisClient:
             if self.debug:
                 self.logger.debug("Initial Login response: {}".format(respjson))
             self.blueiris_session = respjson["session"]
-            self.generate_response()
+            self.generate_response(username, password)
             return await self.cmd("login")
 
-    def generate_response(self):
+    def generate_response(self, username, password):
         """Update self.username, self.password and self.blueiris_session before calling this."""
         self.response = hashlib.md5(
-            "{}:{}:{}".format(self.user, self.blueiris_session, self.password).encode('utf-8')).hexdigest()
+            "{}:{}:{}".format(username, self.blueiris_session, password).encode('utf-8')).hexdigest()
         if self.debug:
             self.logger.debug("Generating a response hash from session.")
             self.logger.debug("Session: {}, Response: {}".format(self.blueiris_session,self.response))

@@ -1,3 +1,3 @@
 name = "pyblueiris"
 
-from .client import BlueIrisClient
+from .BlueIris import BlueIris
