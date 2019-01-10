@@ -33,7 +33,7 @@ class BlueIris:
     def attributes(self):
         return self._attributes
 
-    async def async_setup_session(self):
+    async def setup_session(self):
         """Initialize the session with the Blue Iris server"""
         session_info = await self.client.login(self.username, self.password)
         self._attributes["name"] = session_info.get('system name', UNKNOWN_STRING)
@@ -53,10 +53,10 @@ class BlueIris:
                     self._attributes["ptz_allowed"],
                     self._attributes["clips_allowed"], self._attributes["schedules"], self._attributes["version"]))
 
-    async def async_update_status(self):
+    async def update_status(self):
         """Updates Blue Iris status"""
         if not self.am_logged_in:
-            await self.async_setup_session()
+            await self.setup_session()
 
         status = await self.client.cmd("status")
         if self.debug:
@@ -67,23 +67,23 @@ class BlueIris:
         else:
             self._attributes["profile"] = self._attributes["profiles"][status["profile"]]
 
-    async def async_update_camlist(self):
+    async def update_camlist(self):
         """Updates known cameras on Blue Iris"""
         if not self.am_logged_in:
-            await self.async_setup_session()
+            await self.setup_session()
 
         camlist = await self.client.cmd("camlist")
         self._attributes["cameras"] = dict()
         for cam in camlist:
             self._attributes["cameras"][cam.get('optionValue')] = cam.get('optionDisplay')
 
-    async def async_update_cliplist(self, camera="Index"):
+    async def update_cliplist(self, camera="Index"):
         """Updates list of available clips. Provide a camera name to update an individual camera"""
         if not self.am_logged_in:
-            await self.async_setup_session()
+            await self.setup_session()
 
         if not self._attributes["cameras"]:
-            await self.async_update_camlist()
+            await self.update_camlist()
 
         if "cliplist" not in self._attributes:
             self._attributes["cliplist"] = dict()
@@ -101,13 +101,13 @@ class BlueIris:
         for clip in cliplist:
             self._attributes["cliplist"][clip["camera"]].append(clip)
 
-    async def async_update_alertlist(self, camera="Index"):
+    async def update_alertlist(self, camera="Index"):
         """Updates list of alerts. Provide a camera name to update an individual camera"""
         if not self.am_logged_in:
-            await self.async_setup_session()
+            await self.setup_session()
 
         if not self._attributes["cameras"]:
-            await self.async_update_camlist()
+            await self.update_camlist()
 
         if "alertlist" not in self._attributes:
             self._attributes["alertlist"] = dict()
@@ -125,18 +125,18 @@ class BlueIris:
         for alert in alertlist:
             self._attributes["alertlist"][alert["camera"]].append(alert)
 
-    async def async_update_log(self):
+    async def update_log(self):
         """Updates the log from Blue Iris"""
         if not self.am_logged_in:
-            await self.async_setup_session()
+            await self.setup_session()
 
         log = await self.client.cmd("log")
         self._attributes["log"] = log
 
-    async def async_update_sysconfig(self):
+    async def update_sysconfig(self):
         """Updates the system configuration status from Blue Iris"""
         if not self.am_logged_in:
-            await self.async_setup_session()
+            await self.setup_session()
 
         if not self._attributes["iam_admin"]:
             self.logger.error("The sysconfig command requires admin access. Current user is NOT admin")
