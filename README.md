@@ -1,5 +1,3 @@
-# Example Package
+# Python library for Blue Iris
 
-This is a simple example package. You can use
-[Github-flavored Markdown](https://guides.github.com/features/mastering-markdown/)
-to write your content.
+A simple async library for the Blue Iris JSON API
