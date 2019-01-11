@@ -239,3 +239,16 @@ class BlueIris:
         """Operate a camera's PTZ functionality"""
         if await self.is_valid_camera(camera):
             await self.client.cmd("ptz", {"camera":camera, "button": command.value, "updown": 1})
+
+    async def set_status_signal(self, signal: Signal):
+        """Send camconfig command to pause camera"""
+        await self.client.cmd("status", {"signal": signal.value})
+
+    async def set_status_profile(self, profile_index: int):
+        """Send camconfig command to pause camera"""
+        await self.client.cmd("status", {"profile": profile_index})
+
+    async def set_status_profile_by_name(self, profile_name: str):
+        """Send camconfig command to pause camera"""
+        profile_ind = self._attributes["profiles"].index(profile_name)
+        await self.set_status_profile(profile_ind)
