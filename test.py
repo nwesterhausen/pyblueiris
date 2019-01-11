@@ -1,4 +1,4 @@
-import logging, sys, asyncio, pprint
+import logging, sys, asyncio
 
 import pyblueiris as BI
 
@@ -20,7 +20,7 @@ async def tests():
         await blue.setup_session()
         await blue.update_all_information()
 
-        pprint.pprint(blue.attributes.get("camconfig"))
+        print(blue.attributes)
 
 
 if __name__ == "__main__":
