@@ -1,7 +1,8 @@
 import logging
+from math import floor
 
 from .client import BlueIrisClient
-from .const import PTZCommand, Signal, LOG_SEVERITY
+from .const import PTZCommand, Signal, LOG_SEVERITY, CAMConfig
 from aiohttp import ClientSession
 
 UNKNOWN_DICT = {'-1': ''}
@@ -173,3 +174,43 @@ class BlueIris:
         """Send camconfig command to enable camera"""
         if await self.is_valid_camera(camera):
             await self.client.cmd("camconfig", {"camera": camera, "enable": "false"})
+
+    async def unpause_camera(self, camera):
+        """Send camconfig command to pause camera"""
+        if await self.is_valid_camera(camera):
+            await self.client.cmd("camconfig", {"camera": camera, "pause": CAMConfig.PAUSE_CANCEL.value})
+
+    async def pause_camera_indefinitely(self, camera):
+        """Send camconfig command to pause camera"""
+        if await self.is_valid_camera(camera):
+            await self.client.cmd("camconfig", {"camera": camera, "pause": CAMConfig.PAUSE_INDEFINITELY.value})
+
+    async def pause_camera_add30seconds(self, camera):
+        """Send camconfig command to pause camera"""
+        if await self.is_valid_camera(camera):
+            await self.client.cmd("camconfig", {"camera": camera, "pause": CAMConfig.PAUSE_ADD_30_SEC.value})
+
+    async def pause_camera_add1minute(self, camera):
+        """Send camconfig command to pause camera"""
+        if await self.is_valid_camera(camera):
+            await self.client.cmd("camconfig", {"camera": camera, "pause": CAMConfig.PAUSE_ADD_1_MIN.value})
+
+    async def pause_camera_add1hour(self, camera):
+        """Send camconfig command to pause camera"""
+        if await self.is_valid_camera(camera):
+            await self.client.cmd("camconfig", {"camera": camera, "pause": CAMConfig.PAUSE_ADD_1_HOUR.value})
+
+    async def pause_camera(self, camera, seconds):
+        """Send camconfig command to pause camera for seconds (rounded down to nearest 30 seconds"""
+        if seconds < 30:
+            seconds = 30
+        num_1hour_pauses = floor(seconds / 3600)
+        num_1minute_pauses = floor(seconds / 60) - (60 * num_1hour_pauses)
+        num_30second_pauses = floor(seconds / 30) - (2 * num_1minute_pauses) - (120 * num_1hour_pauses)
+        if await self.is_valid_camera(camera):
+            for x in range(num_1hour_pauses):
+                await self.client.cmd("camconfig", {"camera": camera, "pause": CAMConfig.PAUSE_ADD_1_HOUR.value})
+            for x in range(num_1minute_pauses):
+                await self.client.cmd("camconfig", {"camera": camera, "pause": CAMConfig.PAUSE_ADD_1_MIN.value})
+            for x in range(num_30second_pauses):
+                await self.client.cmd("camconfig", {"camera": camera, "pause": CAMConfig.PAUSE_ADD_30_SEC.value})
