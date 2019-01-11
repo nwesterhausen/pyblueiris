@@ -252,3 +252,13 @@ class BlueIris:
         """Send camconfig command to pause camera"""
         profile_ind = self._attributes["profiles"].index(profile_name)
         await self.set_status_profile(profile_ind)
+
+    async def set_sysconfig_archive(self, archive_enabled: bool):
+        """Enable or disable web archival"""
+        if self._attributes["iam_admin"]:
+            await self.client.cmd("sysconfig",{"archive": archive_enabled})
+
+    async def set_sysconfig_schedule(self, global_schedule_enabled: bool):
+        """Enable or disable web archival"""
+        if self._attributes["iam_admin"]:
+            await self.client.cmd("sysconfig",{"schedule": global_schedule_enabled})
