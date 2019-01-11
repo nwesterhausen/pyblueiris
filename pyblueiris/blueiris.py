@@ -234,3 +234,8 @@ class BlueIris:
         """Send camconfig command to enable or disable the PTZ event schedule"""
         if await self.is_valid_camera(camera):
             await self.client.cmd("camconfig", {"camera": camera, "ptzevents": ptz_event_schedule_enabled})
+
+    async def send_ptz_command(self, camera, command: PTZCommand):
+        """Operate a camera's PTZ functionality"""
+        if await self.is_valid_camera(camera):
+            await self.client.cmd("ptz", {"camera":camera, "button": command.value, "updown": 1})
