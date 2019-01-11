@@ -22,10 +22,10 @@ async def tests():
 
         print(blue.attributes)
 
-        print("Sending disable to INT01")
-        await blue.enable_camera("INT01", False)
-        print("Sending enable to INT01")
-        await blue.enable_camera("INT01", True)
+        # print("Sending disable to INT01")
+        # await blue.enable_camera("INT01", False)
+        # print("Sending enable to INT01")
+        # await blue.enable_camera("INT01", True)
 
 
 if __name__ == "__main__":
