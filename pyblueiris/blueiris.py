@@ -160,21 +160,15 @@ class BlueIris:
             return False
         return True
 
-    async def send_camera_reset(self, camera):
+    async def reset_camera(self, camera):
         """Send camconfig command to reset camera"""
         if await self.is_valid_camera(camera):
-            resp = await self.send_command("camconfig", {"camera": camera, "reset": "true"})
-            return resp["result"]
+            await self.send_command("camconfig", {"camera": camera, "reset": "true"})
 
-    async def send_camera_enable(self, camera):
+    async def enable_camera(self, camera, enabled=True):
         """Send camconfig command to enable camera"""
         if await self.is_valid_camera(camera):
-            await self.send_command("camconfig", {"camera": camera, "enable": "true"})
-
-    async def send_camera_disable(self, camera):
-        """Send camconfig command to enable camera"""
-        if await self.is_valid_camera(camera):
-            await self.send_command("camconfig", {"camera": camera, "enable": "false"})
+            await self.send_command("camconfig", {"camera": camera, "enable": enabled})
 
     async def unpause_camera(self, camera):
         """Send camconfig command to pause camera"""
@@ -263,3 +257,11 @@ class BlueIris:
         """Enable or disable web archival"""
         if self._attributes["iam_admin"]:
             await self.send_command("sysconfig",{"schedule": global_schedule_enabled})
+
+    async def trigger_camera_motion(self, camera):
+        """Send camconfig command to enable camera"""
+        if not self._attributes["iam_admin"]:
+            self.logger.error("Unable to trigger cameras without admin permissions")
+            return False
+        if await self.is_valid_camera(camera):
+            await self.send_command("trigger", {"camera": camera})
