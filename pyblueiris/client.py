@@ -63,3 +63,5 @@ class BlueIrisClient:
             if self.debug:
                 self.logger.error("POST JSON: {}".format(args))
                 self.logger.error("RESPONSE: {}".format(rjson))
+            if rjson["result"]:
+                return rjson

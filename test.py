@@ -17,15 +17,10 @@ MY_LOGGER = logging.getLogger(__name__)
 async def tests():
     async with ClientSession(raise_for_status=True) as sess:
         blue = BI.BlueIris(sess, USER, PASS, PROTOCOL, HOST, debug=True, logger=MY_LOGGER)
-        await blue.async_setup_session()
-        await blue.async_update_status()
-        await blue.async_update_camlist()
-        await blue.async_update_cliplist()
-        await blue.async_update_alertlist()
-        await blue.async_update_log()
-        await blue.async_update_sysconfig()
+        await blue.setup_session()
+        await blue.update_all_information()
 
-        pprint.pprint(blue.attributes)
+        pprint.pprint(blue.attributes.get("camconfig"))
 
 
 if __name__ == "__main__":
