@@ -17,7 +17,7 @@ MY_LOGGER = logging.getLogger(__name__)
 async def tests():
     async with ClientSession(raise_for_status=True) as sess:
         blue = BI.BlueIris(sess, USER, PASS, PROTOCOL, HOST, debug=True, logger=MY_LOGGER)
-        await blue.setup_session()
+        #await blue.setup_session()
         await blue.update_all_information()
 
         print(blue.attributes)
