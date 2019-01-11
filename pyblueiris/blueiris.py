@@ -57,6 +57,7 @@ class BlueIris:
                     self._attributes["name"], self._attributes["profiles"], self._attributes["iam_admin"],
                     self._attributes["ptz_allowed"],
                     self._attributes["clips_allowed"], self._attributes["schedules"], self._attributes["version"]))
+        return True
 
     async def send_command(self, command: str, params=None):
         """Sends a command to the Blue Iris server. Check if we're authenticated first."""
