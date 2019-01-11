@@ -53,15 +53,7 @@ class BlueIrisClient:
                 rjson = await resp.json()
                 if self.debug:
                     self.logger.debug("Full json response: {}".format(rjson))
-                return rjson["data"]
+                return rjson
         except ClientError as err:
             raise ClientError(
                 'Error requesting data from {}: {}'.format(self.url, err))
-        except KeyError:
-            """It's possible that there was no data to be returned. In that case respond 'None'"""
-            self.logger.error("No 'data' response from cmd:{}".format(command))
-            if self.debug:
-                self.logger.error("POST JSON: {}".format(args))
-                self.logger.error("RESPONSE: {}".format(rjson))
-            if rjson["result"]:
-                return rjson
