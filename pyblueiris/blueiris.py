@@ -214,3 +214,23 @@ class BlueIris:
                 await self.client.cmd("camconfig", {"camera": camera, "pause": CAMConfig.PAUSE_ADD_1_MIN.value})
             for x in range(num_30second_pauses):
                 await self.client.cmd("camconfig", {"camera": camera, "pause": CAMConfig.PAUSE_ADD_30_SEC.value})
+
+    async def set_camera_motion(self, camera, motion_enabled=True):
+        """Send camconfig command to pause camera"""
+        if await self.is_valid_camera(camera):
+            await self.client.cmd("camconfig", {"camera": camera, "motion": motion_enabled})
+
+    async def set_camera_schedule(self, camera, camera_schedule_enabled=True):
+        """Send camconfig command to enable or disable the caerma's custom schedule"""
+        if await self.is_valid_camera(camera):
+            await self.client.cmd("camconfig", {"camera": camera, "schedule": camera_schedule_enabled})
+
+    async def set_camera_ptzcycle(self, camera, preset_cycle_enabled=True):
+        """Send camconfig command to enable or disable the preset cycle feature"""
+        if await self.is_valid_camera(camera):
+            await self.client.cmd("camconfig", {"camera": camera, "ptzcycle": preset_cycle_enabled})
+
+    async def set_camera_ptzevent_schedule(self, camera, ptz_event_schedule_enabled=True):
+        """Send camconfig command to enable or disable the PTZ event schedule"""
+        if await self.is_valid_camera(camera):
+            await self.client.cmd("camconfig", {"camera": camera, "ptzevents": ptz_event_schedule_enabled})
