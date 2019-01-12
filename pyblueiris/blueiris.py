@@ -38,7 +38,7 @@ class BlueIris:
     def __init__(self, aiosession: ClientSession, user, password, protocol, host, port="", debug=False, logger=_LOGGER):
         """Initialize a client which is prepared to talk with a Blue Iris server"""
         self._attributes = dict()
-        self._cameras = list()
+        self._cameras = dict()
         self.logger = logger
         self.debug = debug
         self.am_logged_in = False
@@ -155,6 +155,8 @@ class BlueIris:
             self._attributes["cameras"][shortcode] = camconfig.get('optionDisplay')
             if shortcode not in self._cameras and 'group' not in camconfig:
                 self._cameras[shortcode] = BlueIrisCamera(self._base_url, camconfig)
+            elif shortcode in self._cameras:
+                self._cameras[shortcode].set_camlist_data(camconfig)
 
     async def update_cliplist(self, camera="Index"):
         """Updates list of available clips. Provide a camera name to update an individual camera"""
