@@ -1,4 +1,5 @@
 """Represents a Blue Iris Camera"""
+from .blueiris import BlueIris
 
 """Define lookup values for Camlist Data"""
 CONF_DISPLAY_NAME = 'optionsDisplay'
@@ -51,8 +52,9 @@ DEFAULT_NUM_NORECORDING = 0
 
 class BlueIrisCamera:
 
-    def __init__(self, camlist_data: []):
+    def __init__(self, bi_instance: BlueIris, camlist_data: []):
         self._camlist_data = camlist_data
+        self._bi_instance = bi_instance
         self._display_name = DEFAULT_DISPLAY_NAME
         self._short_name = DEFAULT_SHORT_NAME
         self._fps = DEFAULT_FPS

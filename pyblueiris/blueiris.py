@@ -18,7 +18,7 @@ class BlueIris:
     def __init__(self, aiosession: ClientSession, user, password, protocol, host, port="", debug=False, logger=_LOGGER):
         """Initialize a client which is prepared to talk with a Blue Iris server"""
         self._attributes = dict()
-        self.cameras = dict()
+        self.cameras = list()
         self.logger = logger
         self.debug = debug
         self.am_logged_in = False
@@ -86,6 +86,15 @@ class BlueIris:
             self._attributes["profile"] = "Undefined"
         else:
             self._attributes["profile"] = self._attributes["profiles"][status["profile"]]
+
+    async def get_cameras(self):
+        if self._attributes["camconfig"] is None:
+            await self.update_camlist()
+        if len(self.cameras) != len(self._attributes["camconfig"][0]["group"]):
+            for camcnf in self._attributes["camconfig"]:
+                if camcnf["optionValue"] != 'Index':
+                    self.cameras.append(BlueIrisCamera(self, camcnf))
+        return self.cameras
 
     async def update_camlist(self):
         """Updates known cameras on Blue Iris"""
@@ -160,7 +169,8 @@ class BlueIris:
             await self.update_camlist()
         if cam_shortcode not in self._attributes["cameras"]:
             self.logger.error(
-                "{}: invalid camera provided. Choose one of {}".format(cam_shortcode, self._attributes["cameras"].keys()))
+                "{}: invalid camera provided. Choose one of {}".format(cam_shortcode,
+                                                                       self._attributes["cameras"].keys()))
             return False
         return True
 
@@ -237,7 +247,7 @@ class BlueIris:
     async def send_ptz_command(self, camera, command: PTZCommand):
         """Operate a camera's PTZ functionality"""
         if await self.is_valid_camera(camera):
-            await self.send_command("ptz", {"camera":camera, "button": command.value, "updown": 1})
+            await self.send_command("ptz", {"camera": camera, "button": command.value, "updown": 1})
 
     async def set_status_signal(self, signal: Signal):
         """Send camconfig command to pause camera"""
@@ -255,12 +265,12 @@ class BlueIris:
     async def set_sysconfig_archive(self, archive_enabled: bool):
         """Enable or disable web archival"""
         if self._attributes["iam_admin"]:
-            await self.send_command("sysconfig",{"archive": archive_enabled})
+            await self.send_command("sysconfig", {"archive": archive_enabled})
 
     async def set_sysconfig_schedule(self, global_schedule_enabled: bool):
         """Enable or disable web archival"""
         if self._attributes["iam_admin"]:
-            await self.send_command("sysconfig",{"schedule": global_schedule_enabled})
+            await self.send_command("sysconfig", {"schedule": global_schedule_enabled})
 
     async def trigger_camera_motion(self, camera):
         """Send camconfig command to enable camera"""
