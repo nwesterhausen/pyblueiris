@@ -6,6 +6,26 @@ from .camera import BlueIrisCamera
 from .const import PTZCommand, Signal, CAMConfig
 from aiohttp import ClientSession
 
+SESSION_NAME = 'system name'
+SESSION_PROFILES = 'profiles'
+SESSION_IAM_ADMIN = 'admin'
+SESSION_PTZ_ALLOWED = 'ptz'
+SESSION_DIO_AVAILABLE = 'dio'
+SESSION_CLIPS_ALLOWED = 'clips'
+SESSION_SCHEDULES = 'schedules'
+SESSION_VERSION = 'version'
+SESSION_AUDIO_ALLOWED = 'audio'
+SESSION_STREAM_TIMELIMIT = 'streamtimelimit'
+SESSION_LICENSE = 'license'
+SESSION_SUPPORT = 'support'
+SESSION_USER = 'user'
+SESSION_LATITUDE = 'latitude'
+SESSION_LONGITUDE = 'longitude'
+SESSION_TZONE = 'tzone'
+SESSION_STREAMS = 'streams'
+SESSION_SOUNDS = 'sounds'
+SESSION_WWW_SOUNDS = 'www_sounds'
+
 UNKNOWN_DICT = {'-1': ''}
 UNKNOWN_LIST = [{'-1': ''}]
 UNKNOWN_STRING = "noname"
@@ -25,17 +45,30 @@ class BlueIris:
 
         if port != "":
             host = "{}:{}".format(host, port)
-        self.url = "{}://{}/json".format(protocol, host)
-        if self.debug:
-            self.logger.info("Attempting connection to {}".format(self.url))
+        self.base_url = "{}://{}".format(protocol, host)
+        self.url = "{}/json".format(self.base_url)
         self.username = user
         self.password = password
+        if self.debug:
+            self.logger.info("Attempting connection to {}".format(self.url))
 
         self.client = BlueIrisClient(aiosession, self.url, debug=self.debug, logger=self.logger)
 
     @property
     def attributes(self):
         return self._attributes
+
+    @property
+    def admin(self):
+        return self._attributes["iam_admin"]
+
+    @property
+    def name(self):
+        return self.attributes["name"]
+
+    @property
+    def version(self):
+        return self.attributes["version"]
 
     async def setup_session(self):
         """Initialize the session with the Blue Iris server"""
@@ -44,13 +77,25 @@ class BlueIris:
             self.logger.error("Did not get a good result from login command. Failing login.")
             return False
         session_info = full_reply["data"]
-        self._attributes["name"] = session_info.get('system name', UNKNOWN_STRING)
-        self._attributes["profiles"] = session_info.get('profiles', UNKNOWN_LIST)
-        self._attributes["iam_admin"] = session_info.get('admin', False)
-        self._attributes["ptz_allowed"] = session_info.get('ptz', False)
-        self._attributes["clips_allowed"] = session_info.get('clips', False)
-        self._attributes["schedules"] = session_info.get('schedules', UNKNOWN_LIST)
-        self._attributes["version"] = session_info.get('version', UNKNOWN_STRING)
+        self._attributes["name"] = session_info.get(SESSION_NAME, UNKNOWN_STRING)
+        self._attributes["profiles"] = session_info.get(SESSION_PROFILES, UNKNOWN_LIST)
+        self._attributes["iam_admin"] = session_info.get(SESSION_IAM_ADMIN, False)
+        self._attributes["ptz_allowed"] = session_info.get(SESSION_PTZ_ALLOWED, False)
+        self._attributes["clips_allowed"] = session_info.get(SESSION_CLIPS_ALLOWED, False)
+        self._attributes["schedules"] = session_info.get(SESSION_SCHEDULES, UNKNOWN_LIST)
+        self._attributes["version"] = session_info.get(SESSION_VERSION, UNKNOWN_STRING)
+        self._attributes["audio_allowed"] = session_info.get(SESSION_AUDIO_ALLOWED, False)
+        self._attributes["dio_available"] = session_info.get(SESSION_DIO_AVAILABLE, False)
+        self._attributes["stream_timelimit"] = session_info.get(SESSION_STREAM_TIMELIMIT, False)
+        self._attributes["license"] = session_info.get(SESSION_LICENSE, UNKNOWN_STRING)
+        self._attributes["support"] = session_info.get(SESSION_SUPPORT)
+        self._attributes["user"] = session_info.get(SESSION_USER, UNKNOWN_STRING)
+        self._attributes["longitude"] = session_info.get(SESSION_LONGITUDE, UNKNOWN_STRING)
+        self._attributes["latitude"] = session_info.get(SESSION_LATITUDE, UNKNOWN_STRING)
+        self._attributes["tzone"] = session_info.get(SESSION_TZONE, UNKNOWN_STRING)
+        self._attributes["streams"] = session_info.get(SESSION_STREAMS, UNKNOWN_LIST)
+        self._attributes["sounds"] = session_info.get(SESSION_SOUNDS, UNKNOWN_LIST)
+        self._attributes["www_sounds"] = session_info.get(SESSION_WWW_SOUNDS, UNKNOWN_LIST)
         self.am_logged_in = True
         if self.debug:
             self.logger.debug("Session info: {}".format(session_info))
