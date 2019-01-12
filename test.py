@@ -21,7 +21,8 @@ async def tests():
         await blue.update_all_information()
 
         print(blue.attributes)
-
+        x = await blue.get_cameras()
+        print(x[0].last_update_time)
         # print("Sending disable to INT01")
         # await blue.enable_camera("INT01", False)
         # print("Sending enable to INT01")

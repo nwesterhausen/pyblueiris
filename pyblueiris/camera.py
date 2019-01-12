@@ -1,5 +1,5 @@
 """Represents a Blue Iris Camera"""
-from datetime import time
+import time
 
 """Define lookup values for Camlist Data"""
 CONF_DISPLAY_NAME = 'optionsDisplay'
@@ -52,8 +52,8 @@ DEFAULT_NUM_NORECORDING = 0
 
 class BlueIrisCamera:
 
-    def __init__(self, bi_base_url, camlist_data: []):
-        self._camlist_data = camlist_data
+    def __init__(self, bi_base_url, camlist_data: {}):
+        self._camlist_data = {}
         self._base_url = bi_base_url
         self._mjpeg_url = "{}/mjpg/@Index".format(self._base_url)
         self._display_name = DEFAULT_DISPLAY_NAME
@@ -79,7 +79,7 @@ class BlueIrisCamera:
         self._num_nosignal = DEFAULT_NUM_NOSIGNAL
         self._num_norecording = DEFAULT_NUM_NORECORDING
         self._last_update_time = 0
-        self.update_properties()
+        self.set_camlist_data(camlist_data)
 
     @property
     def display_name(self):
