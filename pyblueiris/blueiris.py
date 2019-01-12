@@ -38,7 +38,7 @@ class BlueIris:
     def __init__(self, aiosession: ClientSession, user, password, protocol, host, port="", debug=False, logger=_LOGGER):
         """Initialize a client which is prepared to talk with a Blue Iris server"""
         self._attributes = dict()
-        self.cameras = list()
+        self._cameras = list()
         self.logger = logger
         self.debug = debug
         self.am_logged_in = False
@@ -136,14 +136,12 @@ class BlueIris:
         else:
             self._attributes["profile"] = self._attributes["profiles"][status["profile"]]
 
-    async def get_cameras(self):
-        if self._attributes["camconfig"] is None:
-            await self.update_camlist()
-        if len(self.cameras) != len(self._attributes["camconfig"][0]["group"]):
-            for camcnf in self._attributes["camconfig"]:
-                if camcnf["optionValue"] != 'Index':
-                    self.cameras.append(BlueIrisCamera(self, camcnf))
-        return self.cameras
+    @property
+    def cameras(self):
+        cameras_as_list = list()
+        for key in self._cameras:
+            cameras_as_list.append(self._cameras[key])
+        return cameras_as_list
 
     async def update_camlist(self):
         """Updates known cameras on Blue Iris"""
@@ -152,8 +150,11 @@ class BlueIris:
         self._attributes["camconfig"] = camlist
         if camlist is None:
             camlist = dict()
-        for cam in camlist:
-            self._attributes["cameras"][cam.get('optionValue')] = cam.get('optionDisplay')
+        for camconfig in camlist:
+            shortcode = camconfig.get('optionValue')
+            self._attributes["cameras"][shortcode] = camconfig.get('optionDisplay')
+            if shortcode not in self._cameras and 'group' not in camconfig:
+                self._cameras[shortcode] = BlueIrisCamera(self._base_url, camconfig)
 
     async def update_cliplist(self, camera="Index"):
         """Updates list of available clips. Provide a camera name to update an individual camera"""
