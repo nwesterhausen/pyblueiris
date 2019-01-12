@@ -24,7 +24,8 @@ class BlueIris:
         if port != "":
             host = "{}:{}".format(host, port)
         self.url = "{}://{}/json".format(protocol, host)
-
+        if self.debug:
+            self.logger.info("Attempting connection to {}".format(self.url))
         self.username = user
         self.password = password
 
