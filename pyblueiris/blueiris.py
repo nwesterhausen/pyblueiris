@@ -2,7 +2,8 @@ import logging
 from math import floor
 
 from .client import BlueIrisClient
-from .const import PTZCommand, Signal, LOG_SEVERITY, CAMConfig
+from .camera import BlueIrisCamera
+from .const import PTZCommand, Signal, CAMConfig
 from aiohttp import ClientSession
 
 UNKNOWN_DICT = {'-1': ''}
@@ -17,6 +18,7 @@ class BlueIris:
     def __init__(self, aiosession: ClientSession, user, password, protocol, host, port="", debug=False, logger=_LOGGER):
         """Initialize a client which is prepared to talk with a Blue Iris server"""
         self._attributes = dict()
+        self.cameras = dict()
         self.logger = logger
         self.debug = debug
         self.am_logged_in = False
