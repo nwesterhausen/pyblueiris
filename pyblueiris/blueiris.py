@@ -2,8 +2,29 @@ import logging
 from math import floor
 
 from .client import BlueIrisClient
-from .const import PTZCommand, Signal, LOG_SEVERITY, CAMConfig
+from .camera import BlueIrisCamera
+from .const import PTZCommand, Signal, CAMConfig
 from aiohttp import ClientSession
+
+SESSION_NAME = 'system name'
+SESSION_PROFILES = 'profiles'
+SESSION_IAM_ADMIN = 'admin'
+SESSION_PTZ_ALLOWED = 'ptz'
+SESSION_DIO_AVAILABLE = 'dio'
+SESSION_CLIPS_ALLOWED = 'clips'
+SESSION_SCHEDULES = 'schedules'
+SESSION_VERSION = 'version'
+SESSION_AUDIO_ALLOWED = 'audio'
+SESSION_STREAM_TIMELIMIT = 'streamtimelimit'
+SESSION_LICENSE = 'license'
+SESSION_SUPPORT = 'support'
+SESSION_USER = 'user'
+SESSION_LATITUDE = 'latitude'
+SESSION_LONGITUDE = 'longitude'
+SESSION_TZONE = 'tzone'
+SESSION_STREAMS = 'streams'
+SESSION_SOUNDS = 'sounds'
+SESSION_WWW_SOUNDS = 'www_sounds'
 
 UNKNOWN_DICT = {'-1': ''}
 UNKNOWN_LIST = [{'-1': ''}]
@@ -17,23 +38,37 @@ class BlueIris:
     def __init__(self, aiosession: ClientSession, user, password, protocol, host, port="", debug=False, logger=_LOGGER):
         """Initialize a client which is prepared to talk with a Blue Iris server"""
         self._attributes = dict()
+        self.cameras = list()
         self.logger = logger
         self.debug = debug
         self.am_logged_in = False
 
         if port != "":
             host = "{}:{}".format(host, port)
-        self.url = "{}://{}/json".format(protocol, host)
-        if self.debug:
-            self.logger.info("Attempting connection to {}".format(self.url))
+        self.base_url = "{}://{}".format(protocol, host)
+        self.url = "{}/json".format(self.base_url)
         self.username = user
         self.password = password
+        if self.debug:
+            self.logger.info("Attempting connection to {}".format(self.url))
 
         self.client = BlueIrisClient(aiosession, self.url, debug=self.debug, logger=self.logger)
 
     @property
     def attributes(self):
         return self._attributes
+
+    @property
+    def admin(self):
+        return self._attributes["iam_admin"]
+
+    @property
+    def name(self):
+        return self.attributes["name"]
+
+    @property
+    def version(self):
+        return self.attributes["version"]
 
     async def setup_session(self):
         """Initialize the session with the Blue Iris server"""
@@ -42,13 +77,25 @@ class BlueIris:
             self.logger.error("Did not get a good result from login command. Failing login.")
             return False
         session_info = full_reply["data"]
-        self._attributes["name"] = session_info.get('system name', UNKNOWN_STRING)
-        self._attributes["profiles"] = session_info.get('profiles', UNKNOWN_LIST)
-        self._attributes["iam_admin"] = session_info.get('admin', False)
-        self._attributes["ptz_allowed"] = session_info.get('ptz', False)
-        self._attributes["clips_allowed"] = session_info.get('clips', False)
-        self._attributes["schedules"] = session_info.get('schedules', UNKNOWN_LIST)
-        self._attributes["version"] = session_info.get('version', UNKNOWN_STRING)
+        self._attributes["name"] = session_info.get(SESSION_NAME, UNKNOWN_STRING)
+        self._attributes["profiles"] = session_info.get(SESSION_PROFILES, UNKNOWN_LIST)
+        self._attributes["iam_admin"] = session_info.get(SESSION_IAM_ADMIN, False)
+        self._attributes["ptz_allowed"] = session_info.get(SESSION_PTZ_ALLOWED, False)
+        self._attributes["clips_allowed"] = session_info.get(SESSION_CLIPS_ALLOWED, False)
+        self._attributes["schedules"] = session_info.get(SESSION_SCHEDULES, UNKNOWN_LIST)
+        self._attributes["version"] = session_info.get(SESSION_VERSION, UNKNOWN_STRING)
+        self._attributes["audio_allowed"] = session_info.get(SESSION_AUDIO_ALLOWED, False)
+        self._attributes["dio_available"] = session_info.get(SESSION_DIO_AVAILABLE, False)
+        self._attributes["stream_timelimit"] = session_info.get(SESSION_STREAM_TIMELIMIT, False)
+        self._attributes["license"] = session_info.get(SESSION_LICENSE, UNKNOWN_STRING)
+        self._attributes["support"] = session_info.get(SESSION_SUPPORT)
+        self._attributes["user"] = session_info.get(SESSION_USER, UNKNOWN_STRING)
+        self._attributes["longitude"] = session_info.get(SESSION_LONGITUDE, UNKNOWN_STRING)
+        self._attributes["latitude"] = session_info.get(SESSION_LATITUDE, UNKNOWN_STRING)
+        self._attributes["tzone"] = session_info.get(SESSION_TZONE, UNKNOWN_STRING)
+        self._attributes["streams"] = session_info.get(SESSION_STREAMS, UNKNOWN_LIST)
+        self._attributes["sounds"] = session_info.get(SESSION_SOUNDS, UNKNOWN_LIST)
+        self._attributes["www_sounds"] = session_info.get(SESSION_WWW_SOUNDS, UNKNOWN_LIST)
         self.am_logged_in = True
         if self.debug:
             self.logger.debug("Session info: {}".format(session_info))
@@ -84,6 +131,15 @@ class BlueIris:
             self._attributes["profile"] = "Undefined"
         else:
             self._attributes["profile"] = self._attributes["profiles"][status["profile"]]
+
+    async def get_cameras(self):
+        if self._attributes["camconfig"] is None:
+            await self.update_camlist()
+        if len(self.cameras) != len(self._attributes["camconfig"][0]["group"]):
+            for camcnf in self._attributes["camconfig"]:
+                if camcnf["optionValue"] != 'Index':
+                    self.cameras.append(BlueIrisCamera(self, camcnf))
+        return self.cameras
 
     async def update_camlist(self):
         """Updates known cameras on Blue Iris"""
@@ -158,7 +214,8 @@ class BlueIris:
             await self.update_camlist()
         if cam_shortcode not in self._attributes["cameras"]:
             self.logger.error(
-                "{}: invalid camera provided. Choose one of {}".format(cam_shortcode, self._attributes["cameras"].keys()))
+                "{}: invalid camera provided. Choose one of {}".format(cam_shortcode,
+                                                                       self._attributes["cameras"].keys()))
             return False
         return True
 
@@ -235,7 +292,7 @@ class BlueIris:
     async def send_ptz_command(self, camera, command: PTZCommand):
         """Operate a camera's PTZ functionality"""
         if await self.is_valid_camera(camera):
-            await self.send_command("ptz", {"camera":camera, "button": command.value, "updown": 1})
+            await self.send_command("ptz", {"camera": camera, "button": command.value, "updown": 1})
 
     async def set_status_signal(self, signal: Signal):
         """Send camconfig command to pause camera"""
@@ -253,12 +310,12 @@ class BlueIris:
     async def set_sysconfig_archive(self, archive_enabled: bool):
         """Enable or disable web archival"""
         if self._attributes["iam_admin"]:
-            await self.send_command("sysconfig",{"archive": archive_enabled})
+            await self.send_command("sysconfig", {"archive": archive_enabled})
 
     async def set_sysconfig_schedule(self, global_schedule_enabled: bool):
         """Enable or disable web archival"""
         if self._attributes["iam_admin"]:
-            await self.send_command("sysconfig",{"schedule": global_schedule_enabled})
+            await self.send_command("sysconfig", {"schedule": global_schedule_enabled})
 
     async def trigger_camera_motion(self, camera):
         """Send camconfig command to enable camera"""
