@@ -45,8 +45,8 @@ class BlueIris:
 
         if port != "":
             host = "{}:{}".format(host, port)
-        self.base_url = "{}://{}".format(protocol, host)
-        self.url = "{}/json".format(self.base_url)
+        self._base_url = "{}://{}".format(protocol, host)
+        self.url = "{}/json".format(self._base_url)
         self.username = user
         self.password = password
         if self.debug:
@@ -69,6 +69,10 @@ class BlueIris:
     @property
     def version(self):
         return self.attributes["version"]
+
+    @property
+    def base_url(self):
+        return self._base_url
 
     async def setup_session(self):
         """Initialize the session with the Blue Iris server"""
