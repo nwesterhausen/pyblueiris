@@ -3,8 +3,8 @@ import time
 
 
 """Define lookup values for Camlist Data"""
-CONF_DISPLAY_NAME = 'optionsDisplay'
-CONF_SHORT_NAME = 'optionsvalue'
+CONF_DISPLAY_NAME = 'optionDisplay'
+CONF_SHORT_NAME = 'optionValue'
 CONF_FPS = 'FPS'
 CONF_HEX_COLOR = 'color'
 CONF_NUM_CLIPS = 'clipsCreated'
