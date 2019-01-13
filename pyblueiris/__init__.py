@@ -1,3 +1,3 @@
 name = "pyblueiris"
 
-from .blueiris import BlueIris
+from .blueiris import BlueIris, BlueIrisCamera

@@ -17,12 +17,18 @@ MY_LOGGER = logging.getLogger(__name__)
 async def tests():
     async with ClientSession(raise_for_status=True) as sess:
         blue = BI.BlueIris(sess, USER, PASS, PROTOCOL, HOST, debug=True, logger=MY_LOGGER)
-        #await blue.setup_session()
+        await blue.setup_session()
         await blue.update_all_information()
 
         print(blue.attributes)
-        x = await blue.get_cameras()
-        print(x[0].last_update_time)
+
+        cams = blue.cameras
+        await cams[2].update_camconfig()
+        print(cams[2].last_update_time)
+        print(cams[2].mjpeg_url)
+        # x = await blue.get_camera_details('INT01')
+        # print(x)
+        # print(x[0].last_update_time)
         # print("Sending disable to INT01")
         # await blue.enable_camera("INT01", False)
         # print("Sending enable to INT01")

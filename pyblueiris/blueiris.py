@@ -1,4 +1,5 @@
 import logging
+import time
 from math import floor
 
 from .client import BlueIrisClient
@@ -30,6 +31,9 @@ UNKNOWN_DICT = {'-1': ''}
 UNKNOWN_LIST = [{'-1': ''}]
 UNKNOWN_STRING = "noname"
 
+STALE_THRESHOLD = 5
+LAST_UPDATE_KEY = "lastupdate"
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -39,6 +43,8 @@ class BlueIris:
         """Initialize a client which is prepared to talk with a Blue Iris server"""
         self._attributes = dict()
         self._cameras = dict()
+        self._camera_details = dict()
+        self._camera_details[LAST_UPDATE_KEY] = 0
         self.logger = logger
         self.debug = debug
         self.am_logged_in = False
@@ -153,10 +159,11 @@ class BlueIris:
         for camconfig in camlist:
             shortcode = camconfig.get('optionValue')
             self._attributes["cameras"][shortcode] = camconfig.get('optionDisplay')
+            self._camera_details[shortcode] = camconfig
             if shortcode not in self._cameras and 'group' not in camconfig:
-                self._cameras[shortcode] = BlueIrisCamera(self._base_url, camconfig)
-            elif shortcode in self._cameras:
-                self._cameras[shortcode].set_camlist_data(camconfig)
+                self._cameras[shortcode] = BlueIrisCamera(self, shortcode)
+                self.logger.info("Created BlueIrisCamera for {}".format(shortcode))
+            self._camera_details[LAST_UPDATE_KEY] = time.time()
 
     async def update_cliplist(self, camera="Index"):
         """Updates list of available clips. Provide a camera name to update an individual camera"""
@@ -331,3 +338,9 @@ class BlueIris:
             return False
         if await self.is_valid_camera(camera):
             await self.send_command("trigger", {"camera": camera})
+
+    async def get_camera_details(self, camera_shortname):
+        """Return the camera details for requested camera. If last update was UPDATE_THRESHOLD seconds ago, refresh"""
+        if time.time() - self._camera_details[LAST_UPDATE_KEY] > STALE_THRESHOLD:
+            await self.update_camlist()
+        return self._camera_details[camera_shortname]
