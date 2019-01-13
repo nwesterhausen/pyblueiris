@@ -179,6 +179,15 @@ class BlueIrisCamera:
         updated_data = await self.bi.get_camera_details(self._short_name)
         self.update_properties(updated_data)
 
+    async def enable(self):
+        await self.bi.enable_camera(self._short_name, True)
+
+    async def disable(self):
+        await self.bi.enable_camera(self._short_name, False)
+
+    async def detect_motion(self, enabled=True):
+        await self.bi.set_camera_motion(self._short_name, enabled)
+
     def update_properties(self, camlist_data: {}):
         self._last_update_time = time.time()
         self._display_name = camlist_data.get(CONF_DISPLAY_NAME, DEFAULT_DISPLAY_NAME)

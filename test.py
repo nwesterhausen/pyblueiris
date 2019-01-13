@@ -22,10 +22,15 @@ async def tests():
 
         print(blue.attributes)
 
-        cams = blue.cameras
-        await cams[2].update_camconfig()
-        print(cams[2].last_update_time)
-        print(cams[2].mjpeg_url)
+        int01 = blue.cameras[2]
+        await int01.update_camconfig()
+        print(int01.last_update_time)
+        print(int01.mjpeg_url)
+        print(int01.display_name)
+        await int01.disable()
+        await int01.enable()
+        await int01.detect_motion(False)
+        await int01.detect_motion(True)
         # x = await blue.get_camera_details('INT01')
         # print(x)
         # print(x[0].last_update_time)
