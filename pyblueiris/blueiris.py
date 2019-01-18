@@ -38,7 +38,8 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class BlueIris:
-
+    """Class which represents the Blue Iris server"""
+    
     def __init__(self, aiosession: ClientSession, user, password, protocol, host, port="", debug=False, logger=_LOGGER):
         """Initialize a client which is prepared to talk with a Blue Iris server"""
         self._attributes = dict()
@@ -62,30 +63,40 @@ class BlueIris:
 
     @property
     def attributes(self):
+        """Make our attributes dictionary available as a property"""
         return self._attributes
 
     @property
     def admin(self):
+        """Returns if we are authenticated as admin"""
         return self._attributes["iam_admin"]
 
     @property
     def name(self):
+        """Returns the name of the Blue Iris server"""
         return self.attributes["name"]
 
     @property
     def version(self):
+        """Returns the version of Blue Iris running on the server"""
         return self.attributes["version"]
 
     @property
     def base_url(self):
+        """
+        Returns the configured base url, included protocol and port (but not the endpoint)
+        So for example will return http://192.168.1.5:81 (without the '/json' endpoint)
+        """
         return self._base_url
 
     async def setup_session(self):
-        """Initialize the session with the Blue Iris server"""
+        """Initialize the session with the Blue Iris server, starts with logging in"""
         full_reply = await self.client.login(self.username, self.password)
         if "data" not in full_reply:
             self.logger.error("Did not get a good result from login command. Failing login.")
+            self.logger.debug(full_reply)
             return False
+        """Extract the server information from the login reply"""
         session_info = full_reply["data"]
         self._attributes["name"] = session_info.get(SESSION_NAME, UNKNOWN_STRING)
         self._attributes["profiles"] = session_info.get(SESSION_PROFILES, UNKNOWN_LIST)
@@ -106,24 +117,22 @@ class BlueIris:
         self._attributes["streams"] = session_info.get(SESSION_STREAMS, UNKNOWN_LIST)
         self._attributes["sounds"] = session_info.get(SESSION_SOUNDS, UNKNOWN_LIST)
         self._attributes["www_sounds"] = session_info.get(SESSION_WWW_SOUNDS, UNKNOWN_LIST)
+        """Now we are logged in, let's make sure we know it"""
         self.am_logged_in = True
         if self.debug:
             self.logger.debug("Session info: {}".format(session_info))
-            self.logger.debug(
-                "Parsed following session values: name={}, profiles={}, iam_admin={}, ptz_allowed={},"
-                " clips_allowed={}, schedules={}, version={}".format(
-                    self._attributes["name"], self._attributes["profiles"], self._attributes["iam_admin"],
-                    self._attributes["ptz_allowed"],
-                    self._attributes["clips_allowed"], self._attributes["schedules"], self._attributes["version"]))
         return True
 
     async def send_command(self, command: str, params=None):
-        """Sends a command to the Blue Iris server. Check if we're authenticated first."""
+        """Sends a command to the Blue Iris server. Returns the data attribute or True if successful. Returns False on failure"""
         if not self.am_logged_in:
+            """If we aren't logged in for some reason, let's log in again"""
             if not await self.setup_session():
                 self.logger.error("Unable to login, not sending {}".format(command))
                 return False
+        """Send the command to the server"""
         result = await self.client.cmd(command, params)
+        """Sometimes when a command is sent to Blue Iris, it doesn't return a data attribute but is still successful."""
         if "data" in result:
             return result["data"]
         if result["result"] == "success":
@@ -144,6 +153,7 @@ class BlueIris:
 
     @property
     def cameras(self):
+        """Returns list of cameras on Blue Iris"""
         cameras_as_list = list()
         for key in self._cameras:
             cameras_as_list.append(self._cameras[key])
