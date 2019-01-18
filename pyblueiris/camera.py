@@ -2,7 +2,7 @@
 import time
 
 
-"""Define lookup values for Camlist Data"""
+# Define lookup values for Camlist Data
 CONF_DISPLAY_NAME = 'optionDisplay'
 CONF_SHORT_NAME = 'optionValue'
 CONF_FPS = 'FPS'
@@ -26,7 +26,7 @@ CONF_NUM_TRIGGERS = 'nTriggers'
 CONF_NUM_NOSIGNAL = 'nNoSignal'
 CONF_NUM_NORECORDING = 'nClips'
 
-"""Define Default Values for Config"""
+# Define Default Values for Config
 DEFAULT_DISPLAY_NAME = 'Camera'
 DEFAULT_FPS = 0
 DEFAULT_HEX_COLOR = 16777215  # (255, 255, 255)
