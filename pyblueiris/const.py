@@ -9,10 +9,10 @@ class Signal(Enum):
     @classmethod
     def has_value(cls, value):
         if isinstance(value, str):
-            """We were provided a string, let's check it"""
+            # We were provided a string, let's check it
             return value in cls.__members__
         else:
-            """Assume we were given an int corresponding to the value assigned in this class"""
+            # Assume we were given an int corresponding to the value assigned in this class
             return any(value == item.value for item in cls)
 
 
@@ -76,10 +76,10 @@ class PTZCommand(Enum):
     @classmethod
     def has_value(cls, value):
         if isinstance(value, str):
-            """We were provided a string, let's check it"""
+            # We were provided a string, let's check it
             return value in cls.__members__
         else:
-            """Assume we were given an int corresponding to the value assigned in this class"""
+            # Assume we were given an int corresponding to the value assigned in this class
             return any(value == item.value for item in cls)
 
 
@@ -93,10 +93,10 @@ class CAMConfig(Enum):
     @classmethod
     def has_value(cls, value):
         if isinstance(value, str):
-            """We were provided a string, let's check it"""
+            # We were provided a string, let's check it
             return value in cls.__members__
         else:
-            """Assume we were given an int corresponding to the value assigned in this class"""
+            # Assume we were given an int corresponding to the value assigned in this class
             return any(value == item.value for item in cls)
 
 
