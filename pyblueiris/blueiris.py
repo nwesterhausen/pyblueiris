@@ -36,8 +36,8 @@ UNKNOWN_DICT = {'-1': ''}
 UNKNOWN_LIST = [{'-1': ''}]
 UNKNOWN_STRING = "noname"
 
-STALE_THRESHOLD = 5 # This was going to be used to auto-update attributes when calling the property
-LAST_UPDATE_KEY = "lastupdate" # Used in a dict to store the last update time
+STALE_THRESHOLD = 5  # This was going to be used to auto-update attributes when calling the property
+LAST_UPDATE_KEY = "lastupdate"  # Used in a dict to store the last update time
 
 # Creates a default logger if none is provided during instantiation
 _LOGGER = logging.getLogger(__name__)
@@ -45,7 +45,7 @@ _LOGGER = logging.getLogger(__name__)
 
 class BlueIris:
     """Class which represents the Blue Iris server"""
-    
+
     def __init__(self, aiosession: ClientSession, user, password, protocol, host, port="", debug=False, logger=_LOGGER):
         """
         Initialize a client which is prepared to talk with a Blue Iris server
@@ -69,9 +69,10 @@ class BlueIris:
 
         if port != "":
             host = "{}:{}".format(host, port)
-        if protocol not in ['http','https']:
-            self.logger.warn("Invalid protocol passed {}. (Expected 'http' or 'https'. Using 'http')".format(protocol))
-            protocol = 'http'                           
+        if protocol not in ['http', 'https']:
+            self.logger.warning(
+                "Invalid protocol passed {}. (Expected 'http' or 'https'. Using 'http')".format(protocol))
+            protocol = 'http'
         self._base_url = "{}://{}".format(protocol, host)
         self.url = "{}/json".format(self._base_url)
         self.username = user
@@ -185,7 +186,7 @@ class BlueIris:
         """Updates the camerera config and camera list in attributes"""
         camlist = await self.send_command("camlist")
         self._attributes["cameras"] = dict()
-        self._attributes["camconfig"] = camlist # Stores the full result in this key
+        self._attributes["camconfig"] = camlist  # Stores the full result in this key
         if camlist is None:
             camlist = dict()
         # For the 'cameras' value in attributes, we create a short dict that uses the
