@@ -96,7 +96,7 @@ class BlueIris:
             self.logger.error("Did not get a good result from login command. Failing login.")
             self.logger.debug(full_reply)
             return False
-        """Extract the server information from the login reply"""
+        # Extract the server information from the login reply
         session_info = full_reply["data"]
         self._attributes["name"] = session_info.get(SESSION_NAME, UNKNOWN_STRING)
         self._attributes["profiles"] = session_info.get(SESSION_PROFILES, UNKNOWN_LIST)
@@ -117,7 +117,7 @@ class BlueIris:
         self._attributes["streams"] = session_info.get(SESSION_STREAMS, UNKNOWN_LIST)
         self._attributes["sounds"] = session_info.get(SESSION_SOUNDS, UNKNOWN_LIST)
         self._attributes["www_sounds"] = session_info.get(SESSION_WWW_SOUNDS, UNKNOWN_LIST)
-        """Now we are logged in, let's make sure we know it"""
+        # Now we are logged in, let's make sure we know it
         self.am_logged_in = True
         if self.debug:
             self.logger.debug("Session info: {}".format(session_info))
@@ -126,13 +126,13 @@ class BlueIris:
     async def send_command(self, command: str, params=None):
         """Sends a command to the Blue Iris server. Returns the data attribute or True if successful. Returns False on failure"""
         if not self.am_logged_in:
-            """If we aren't logged in for some reason, let's log in again"""
+            # If we aren't logged in for some reason, let's log in again
             if not await self.setup_session():
                 self.logger.error("Unable to login, not sending {}".format(command))
                 return False
-        """Send the command to the server"""
+        # Send the command to the server
         result = await self.client.cmd(command, params)
-        """Sometimes when a command is sent to Blue Iris, it doesn't return a data attribute but is still successful."""
+        # Sometimes when a command is sent to Blue Iris, it doesn't return a data attribute but is still successful.
         if "data" in result:
             return result["data"]
         if result["result"] == "success":
