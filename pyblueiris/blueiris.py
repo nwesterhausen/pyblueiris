@@ -83,12 +83,12 @@ class BlueIris:
 
     @property
     def attributes(self):
-        """Make our attributes dictionary available as a property"""
+        """Returns a dict of the Blue Iris server properties"""
         return self._attributes
 
     @property
     def admin(self):
-        """Returns if we are authenticated as admin"""
+        """Returns True if we are authenticated as admin"""
         return self._attributes["iam_admin"]
 
     @property
@@ -103,14 +103,11 @@ class BlueIris:
 
     @property
     def base_url(self):
-        """
-        Returns the configured base url, included protocol and port (but not the endpoint)
-        So for example will return http://192.168.1.5:81 (without the '/json' endpoint)
-        """
+        """Returns the configured base url, including protocol and port."""
         return self._base_url
 
     async def setup_session(self):
-        """Initialize the session with the Blue Iris server, starts with logging in"""
+        """Logs into the Blue Iris server and sets attributes values with server information"""
         full_reply = await self.client.login(self.username, self.password)
         if "data" not in full_reply:
             self.logger.error("Did not get a good result from login command. Failing login.")
@@ -144,7 +141,12 @@ class BlueIris:
         return True
 
     async def send_command(self, command: str, params=None):
-        """Sends a command to the Blue Iris server. Returns the data attribute or True if successful. Returns False on failure"""
+        """
+        Send command to the Blue Iris server. Returns a dict of data or True on success. Returns False on failure
+        
+        command - Command to send to the server. See the JSON API reference for valid values
+        params - Extra parameters for the command. (default None)
+        """
         if not self.am_logged_in:
             # If we aren't logged in for some reason, let's log in again
             if not await self.setup_session():
@@ -161,7 +163,7 @@ class BlueIris:
         return False
 
     async def update_status(self):
-        """Updates Blue Iris status"""
+        """Updates the status record in attributes"""
         status = await self.send_command("status")
         if self.debug:
             self.logger.debug("Returned signal: {}".format(status["signal"]))
@@ -180,12 +182,14 @@ class BlueIris:
         return cameras_as_list
 
     async def update_camlist(self):
-        """Updates known cameras on Blue Iris"""
+        """Updates the camerera config and camera list in attributes"""
         camlist = await self.send_command("camlist")
         self._attributes["cameras"] = dict()
-        self._attributes["camconfig"] = camlist
+        self._attributes["camconfig"] = camlist # Stores the full result in this key
         if camlist is None:
             camlist = dict()
+        # For the 'cameras' value in attributes, we create a short dict that uses the
+        # shortname for the key and the display name for the value. { CAM1: Camera 1 }
         for camconfig in camlist:
             shortcode = camconfig.get('optionValue')
             self._attributes["cameras"][shortcode] = camconfig.get('optionDisplay')
@@ -196,11 +200,17 @@ class BlueIris:
             self._camera_details[LAST_UPDATE_KEY] = time.time()
 
     async def update_cliplist(self, camera="Index"):
-        """Updates list of available clips. Provide a camera name to update an individual camera"""
+        """
+        Updates the list of clips in attributes for specificed camera. If no camera is specified, includes all cameras.
+        
+        camera - Update the clips from a specific camera. The default updates for all cameras. (default "Index")
+        """
         if not await self.is_valid_camera(camera):
+            # If you gave us an invalid camera shortname, we're going to use index.
             camera = "Index"
 
         if "cliplist" not in self._attributes:
+            # Create the cliplist attribute
             self._attributes["cliplist"] = dict()
             for cam_shortname in self._attributes["cameras"].keys():
                 if cam_shortname not in ['@Index', 'Index']:
@@ -209,12 +219,18 @@ class BlueIris:
         cliplist = await self.send_command("cliplist", {"camera": camera})
 
         if cliplist is None:
+            # We have to have a dict() for the next step
             cliplist = dict()
         for clip in cliplist:
+            # Append the clips to the cliplist attribute
             self._attributes["cliplist"][clip["camera"]].append(clip)
 
     async def update_alertlist(self, camera="Index"):
-        """Updates list of alerts. Provide a camera name to update an individual camera"""
+        """
+        Updates the list of alerts in attributes for specificed camera. If no camera is specified, includes all cameras.
+        
+        camera - Update the alerts from a specific camera. The default updates for all cameras. (default "Index")
+        """
         if not await self.is_valid_camera(camera):
             camera = "Index"
 
@@ -226,12 +242,13 @@ class BlueIris:
 
         alertlist = await self.send_command("alertlist", {"camera": camera, "reset": "false"})
         if alertlist is not dict:
+            # We have to have a dict() for the next step
             alertlist = dict()
         for alert in alertlist:
             self._attributes["alertlist"][alert["camera"]].append(alert)
 
     async def update_log(self):
-        """Updates the log from Blue Iris"""
+        """Updates the log attribute from the Blue Iris server"""
         log = await self.send_command("log")
         self._attributes["log"] = log
 
@@ -244,7 +261,7 @@ class BlueIris:
             self._attributes["sysconfig"] = sysconfig
 
     async def update_all_information(self):
-        """Update all the information we can get from the Blue Iris server"""
+        """Refresh all the information we can get from the Blue Iris server"""
         await self.update_status()
         await self.update_camlist()
         await self.update_cliplist()
@@ -253,8 +270,13 @@ class BlueIris:
         await self.update_sysconfig()
 
     async def is_valid_camera(self, cam_shortcode):
-        """Checks if camera shortcode is a valid option"""
+        """
+        Returns True if cam_shortcode is a valid camera known to Blue Iris.
+        
+        cam_shortcode - the camera shortcode
+        """
         if not self._attributes["cameras"]:
+            # Update our list of cameras if it doesn't exist.
             await self.update_camlist()
         if cam_shortcode not in self._attributes["cameras"]:
             self.logger.error(
@@ -294,12 +316,19 @@ class BlueIris:
             await self.send_command("camconfig", {"camera": camera, "pause": CAMConfig.PAUSE_ADD_1_MIN.value})
 
     async def pause_camera_add1hour(self, camera):
-        """Send camconfig command to pause camera"""
+        """Send camconfig command to pause camera
+        
+        camera - shortcode for the camera to send the command to"""
         if await self.is_valid_camera(camera):
             await self.send_command("camconfig", {"camera": camera, "pause": CAMConfig.PAUSE_ADD_1_HOUR.value})
 
     async def pause_camera(self, camera, seconds):
-        """Send camconfig command to pause camera for seconds (rounded down to nearest 30 seconds"""
+        """
+        Send camconfig command to pause camera for seconds (rounded down to nearest 30 seconds).
+        
+        camera - shortcode for the camera to send the command to
+        seconds - number of seconds to pause the camera (will get rounded down to nearest 30 seconds)
+        """
         if seconds < 30:
             seconds = 30
         num_1hour_pauses = floor(seconds / 3600)
@@ -314,55 +343,104 @@ class BlueIris:
                 await self.send_command("camconfig", {"camera": camera, "pause": CAMConfig.PAUSE_ADD_30_SEC.value})
 
     async def set_camera_motion(self, camera, motion_enabled=True):
-        """Send camconfig command to pause camera"""
+        """
+        Send camconfig command to pause camera
+        
+        camera - shortcode for the camera to send the command to
+        motion_enabled - True to enable, False to disable (default True)
+        """
         if await self.is_valid_camera(camera):
             await self.send_command("camconfig", {"camera": camera, "motion": motion_enabled})
 
     async def set_camera_schedule(self, camera, camera_schedule_enabled=True):
-        """Send camconfig command to enable or disable the caerma's custom schedule"""
+        """
+        Send camconfig command to enable or disable the caerma's custom schedule.
+        
+        camera - shortcode for the camera to send the command to
+        camera_schedule_enabled - True to enable, False to disable (default True)
+        """
         if await self.is_valid_camera(camera):
             await self.send_command("camconfig", {"camera": camera, "schedule": camera_schedule_enabled})
 
     async def set_camera_ptzcycle(self, camera, preset_cycle_enabled=True):
-        """Send camconfig command to enable or disable the preset cycle feature"""
+        """
+        Send camconfig command to enable or disable the preset cycle feature.
+        
+        camera - shortcode for the camera to send the command to
+        preset_cycle_enabled - True to enable, False to disable (default True)
+        """
         if await self.is_valid_camera(camera):
             await self.send_command("camconfig", {"camera": camera, "ptzcycle": preset_cycle_enabled})
 
     async def set_camera_ptzevent_schedule(self, camera, ptz_event_schedule_enabled=True):
-        """Send camconfig command to enable or disable the PTZ event schedule"""
+        """
+        Send camconfig command to enable or disable the PTZ event schedule.
+        
+        camera - shortcode for the camera to send the command to
+        ptz_event_schedule_enabled - True to enable, False to disable (default True)
+        """
         if await self.is_valid_camera(camera):
             await self.send_command("camconfig", {"camera": camera, "ptzevents": ptz_event_schedule_enabled})
 
     async def send_ptz_command(self, camera, command: PTZCommand):
-        """Operate a camera's PTZ functionality"""
+        """
+        Operate a camera's PTZ functionality.
+        
+        camera - shortcode for the camera to send the command to
+        command - a valid PTZCommand (use the enum)
+        """
         if await self.is_valid_camera(camera):
             await self.send_command("ptz", {"camera": camera, "button": command.value, "updown": 1})
 
     async def set_status_signal(self, signal: Signal):
-        """Send camconfig command to pause camera"""
+        """
+        Send command to set the Blue Iris server signal.
+        
+        signal - The signal to set on Blue Iris server (use the enum)
+        """
         await self.send_command("status", {"signal": signal.value})
 
     async def set_status_profile(self, profile_index: int):
-        """Send camconfig command to pause camera"""
+        """
+        Send command to set the current profile using the index of the profile.
+        
+        profile_index - index of the profile to set.
+        """
         await self.send_command("status", {"profile": profile_index})
 
     async def set_status_profile_by_name(self, profile_name: str):
-        """Send camconfig command to pause camera"""
+        """
+        Send command to set the current profile using the name of the profile.
+        
+        profile_name - name of the profile you want to set
+        """
         profile_ind = self._attributes["profiles"].index(profile_name)
         await self.set_status_profile(profile_ind)
 
     async def set_sysconfig_archive(self, archive_enabled: bool):
-        """Enable or disable web archival"""
+        """
+        Send command to enable or disable web archiving.
+        
+        archive_enabled - True to enable web archiving, False to disable
+        """
         if self._attributes["iam_admin"]:
             await self.send_command("sysconfig", {"archive": archive_enabled})
 
     async def set_sysconfig_schedule(self, global_schedule_enabled: bool):
-        """Enable or disable web archival"""
+        """
+        Send command to enable or disable the global schedule.
+        
+        global_schedule_enabled - True to enable the global schedule, False to disable
+        """
         if self._attributes["iam_admin"]:
             await self.send_command("sysconfig", {"schedule": global_schedule_enabled})
 
     async def trigger_camera_motion(self, camera):
-        """Send camconfig command to enable camera"""
+        """
+        Send trigger command to specific camera.
+        
+        camera - the camera shortcode
+        """
         if not self._attributes["iam_admin"]:
             self.logger.error("Unable to trigger cameras without admin permissions")
             return False
@@ -370,7 +448,11 @@ class BlueIris:
             await self.send_command("trigger", {"camera": camera})
 
     async def get_camera_details(self, camera_shortname):
-        """Return the camera details for requested camera. If last update was UPDATE_THRESHOLD seconds ago, refresh"""
+        """
+        Return the camera details for requested camera. If last update was UPDATE_THRESHOLD seconds ago, refresh
+        
+        camera_shortname - the camera shortcode
+        """
         if time.time() - self._camera_details[LAST_UPDATE_KEY] > STALE_THRESHOLD:
             await self.update_camlist()
         return self._camera_details[camera_shortname]
