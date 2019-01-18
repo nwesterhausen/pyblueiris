@@ -7,6 +7,10 @@ from .camera import BlueIrisCamera
 from .const import PTZCommand, Signal, CAMConfig
 from aiohttp import ClientSession
 
+# The following constants are used when understanding the data returned by
+# the login command. We get a lot of information about the server. These
+# constants help make any future changes to the API easier and make the
+# code down below a little less 'magic'
 SESSION_NAME = 'system name'
 SESSION_PROFILES = 'profiles'
 SESSION_IAM_ADMIN = 'admin'
@@ -27,13 +31,15 @@ SESSION_STREAMS = 'streams'
 SESSION_SOUNDS = 'sounds'
 SESSION_WWW_SOUNDS = 'www_sounds'
 
+# These values are used to initialize values which are unknown at the time.
 UNKNOWN_DICT = {'-1': ''}
 UNKNOWN_LIST = [{'-1': ''}]
 UNKNOWN_STRING = "noname"
 
-STALE_THRESHOLD = 5
-LAST_UPDATE_KEY = "lastupdate"
+STALE_THRESHOLD = 5 # This was going to be used to auto-update attributes when calling the property
+LAST_UPDATE_KEY = "lastupdate" # Used in a dict to store the last update time
 
+# Creates a default logger if none is provided during instantiation
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -41,7 +47,18 @@ class BlueIris:
     """Class which represents the Blue Iris server"""
     
     def __init__(self, aiosession: ClientSession, user, password, protocol, host, port="", debug=False, logger=_LOGGER):
-        """Initialize a client which is prepared to talk with a Blue Iris server"""
+        """
+        Initialize a client which is prepared to talk with a Blue Iris server
+        
+        aiosession - AIOHTTP Client Session to run the commands through (required)
+        user - username used to log in
+        password - password used to log in
+        protocol - should be either http or https, it's the protocol used to connect to the Blue Iris webserver
+        host - should be DNS FQDN to connect to Blue Iris or the IP address
+        port - port used to connect to the Blue Iris webserver (default 80 for http, 443 for https)
+        debug - True if you want to log extra messages (default False)
+        logger - The logging.logger to log messages to (default generic __name__ namespace logging)
+        """
         self._attributes = dict()
         self._cameras = dict()
         self._camera_details = dict()
@@ -52,6 +69,9 @@ class BlueIris:
 
         if port != "":
             host = "{}:{}".format(host, port)
+        if protocol not in ['http','https']:
+            self.logger.warn("Invalid protocol passed {}. (Expected 'http' or 'https'. Using 'http')".format(protocol))
+            protocol = 'http'                           
         self._base_url = "{}://{}".format(protocol, host)
         self.url = "{}/json".format(self._base_url)
         self.username = user
