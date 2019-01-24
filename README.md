@@ -1,8 +1,10 @@
-# Blue Iris Python Library
+# README
+
+## Blue Iris Python Library
 
 An async python library for the Blue Iris JSON API.
 
-# Usage
+## Usage
 
 Creating a BlueIris object requires you provide an async web session for it.
 
@@ -30,8 +32,9 @@ From there you can simply call a command you want it to execute. There is a comm
 await blue.update_all_information()
 ```
 
-All of the information the BlueIris object knows about the server is stored in the attributes property (dictionary).
+All of the information the BlueIris object knows about the server is stored in the attributes property \(dictionary\).
 
 ```python
 print(blue.attributes)
 ```
+
