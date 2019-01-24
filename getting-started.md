@@ -24,7 +24,7 @@ from .config import USER, PASS, PROTOCOL, HOST
 
 def main():  
   async with ClientSession(raise_for_status=True) as sess:
-    blue = BI.BlueIris(sess, USER, PASS, PROTOCOL, HOST)
+    blue = pyblueiris.BlueIris(sess, USER, PASS, PROTOCOL, HOST)
  
 if __name__ == '__main__':
   main()
