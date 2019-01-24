@@ -5,7 +5,7 @@
 An async python library for the Blue Iris JSON API.
 
 ## Overview
-For more in-depth documentation, visit [the documentation](https://pyblueiris.gitbook.io/docs).
+For more in-depth documentation, visit [the documentation]().
 
 Creating a BlueIris object requires you provide an async web session for it.
 
