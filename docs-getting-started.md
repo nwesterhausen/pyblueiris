@@ -34,3 +34,4 @@ if __name__ == '__main__':
   main()
 ```
 
+From there you can use the helper functions to make API calls against your Blue Iris server.
