@@ -1,3 +1,8 @@
+# To build the documentation we have to
+#   pip install pydoc-markdown
+# Then cd to docs directory and run
+#   pydocmd build
+
 site_name: "pyblueiris Documentation"
 
 # This tells pydocmd which pages to generate from which Python modules,
