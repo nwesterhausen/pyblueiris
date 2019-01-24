@@ -20,7 +20,11 @@ You also need to provide the protocol (`http` or `https`), the host IP or FQDN, 
 ```python
 import pyblueiris
 from aiohttp import ClientSession
-from .config import USER, PASS, PROTOCOL, HOST
+
+PROTOCOL = 'http'
+HOST = 192.168.1.5
+USER = 'pyserv'
+PASS = 'secret-password'
 
 def main():  
   async with ClientSession(raise_for_status=True) as sess:
