@@ -1,0 +1,5 @@
+{
+  structure: {
+    readme: "getting-started.md"
+  }
+}
