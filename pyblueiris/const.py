@@ -2,7 +2,7 @@ from enum import Enum
 
 
 def has_value(enum: Enum, value):
-    """Return True if `value` is a valid Signal.
+    """Return True if `value` is a valid member of `enum`.
 
     You can check either the string (GREEN, RED..) or the value (0, 1..).
 
