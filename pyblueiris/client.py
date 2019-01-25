@@ -11,14 +11,15 @@ UNKNOWN_HASH = -1
 class BlueIrisClient:
     """Class which facilitates communication between the BlueIris object and the Blue Iris server."""
 
-    def __init__(self, session: ClientSession, endpointurl, debug: bool, logger: logging.Logger):
-        """
+    def __init__(self, session: ClientSession, endpointurl: str, debug: bool, logger: logging.Logger):
+        """Initialize the communication client.
 
-        :type session: ClientSession
-        :param session:
-        :param endpointurl:
-        :param debug:
-        :param logger:
+        :param ClientSession session: ClientSession to use for communication with the Blue Iris server.
+        :param str endpointurl: Full URL used to communicate with the Blue Iris server. This includes the protocol
+            (either http or https) and the '/json' path. If you use a non-standard port (i.e. something other than
+            80 for http and 443 for https), it needs to be specified after the host. `http://192.168.1.15:81/json`
+        :param bool debug: True to have more verbose logging, defaults to False.
+        :param Logger logger: Logger to send log messages to.
         """
         self.async_websession = session
         self.url = endpointurl
@@ -41,7 +42,16 @@ class BlueIrisClient:
             return await self.cmd("login")
 
     def generate_response(self, username, password):
-        """Update self.username, self.password and self.blueiris_session before calling this."""
+        """Generate the response needed to authenticate to the Blue Iris server.
+
+        When communicating with the Blue Iris JSON API, you must provide a valid response when sending commands. This
+        method updates the stored response used by this client.
+
+        :warning: This object must have a current username, password and session for this method to work correctly!
+
+        :param str username: Username used to authenticate to the Blue Iris server.
+        :param str password: Password used to authenitcate to the Blue Iris server.
+        """
         self.response = hashlib.md5(
             "{}:{}:{}".format(username, self.blueiris_session, password).encode('utf-8')).hexdigest()
         if self.debug:
@@ -49,6 +59,13 @@ class BlueIrisClient:
             self.logger.debug("Session: {}, Response: {}".format(self.blueiris_session, self.response))
 
     async def cmd(self, command, params=None):
+        """Send a command to the Blue Iris server.
+
+        :param str command: Command to send to the Blue Iris server.
+        :param dict() params:  Parameters for the command.
+        :return dict(): Return the 'data' portion of the JSON response. If there was no 'data' in the response, return
+            the entire response JSON.
+        """
         if params is None:
             params = dict()
         args = {"session": self.blueiris_session, "response": self.response, "cmd": command}
