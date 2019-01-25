@@ -10,6 +10,8 @@ Welcome to pyblueiris's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   pyblueiris
+
 
 
 Indices and tables
