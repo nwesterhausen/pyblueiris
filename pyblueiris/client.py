@@ -1,15 +1,25 @@
+"""Async client helper for the Blue Iris class."""
 import logging
 import hashlib
 import json
 
 from aiohttp import ClientSession, ClientError
 
-
 UNKNOWN_HASH = -1
 
+
 class BlueIrisClient:
+    """Class which facilitates communication between the BlueIris object and the Blue Iris server."""
 
     def __init__(self, session: ClientSession, endpointurl, debug: bool, logger: logging.Logger):
+        """
+
+        :type session: ClientSession
+        :param session:
+        :param endpointurl:
+        :param debug:
+        :param logger:
+        """
         self.async_websession = session
         self.url = endpointurl
         self.blueiris_session = UNKNOWN_HASH
@@ -36,7 +46,7 @@ class BlueIrisClient:
             "{}:{}:{}".format(username, self.blueiris_session, password).encode('utf-8')).hexdigest()
         if self.debug:
             self.logger.debug("Generating a response hash from session.")
-            self.logger.debug("Session: {}, Response: {}".format(self.blueiris_session,self.response))
+            self.logger.debug("Session: {}, Response: {}".format(self.blueiris_session, self.response))
 
     async def cmd(self, command, params=None):
         if params is None:
