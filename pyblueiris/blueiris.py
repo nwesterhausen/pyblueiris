@@ -44,20 +44,21 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class BlueIris:
-    """Class which represents the Blue Iris server"""
 
     def __init__(self, aiosession: ClientSession, user, password, protocol, host, port="", debug=False, logger=_LOGGER):
-        """
-        Initialize a client which is prepared to talk with a Blue Iris server
-        
-        aiosession - AIOHTTP Client Session to run the commands through (required)
-        user - username used to log in
-        password - password used to log in
-        protocol - should be either http or https, it's the protocol used to connect to the Blue Iris webserver
-        host - should be DNS FQDN to connect to Blue Iris or the IP address
-        port - port used to connect to the Blue Iris webserver (default 80 for http, 443 for https)
-        debug - True if you want to log extra messages (default False)
-        logger - The logging.logger to log messages to (default generic __name__ namespace logging)
+        """Initialize a representation of a Blue Iris server which can be interacted with.
+
+        :param ClientSession aiosession: AIOHTTP Client Session to run the commands through (required)
+        :param str user: Username used to authenticate to the Blue Iris server.
+        :param str password: Password used to authenticate to the Blue Iris server.
+        :param str protocol: Protocol used to communicate with the Blue Iris server. This should be either `http` or
+            `https`.
+        :param str host: The IP address or FQDN used to communicate with the Blue Iris server.
+        :param int port: The port used to communicate with the Blue Iris server. This defauls to match `protocol` --
+            80 for `http` and 443 for `https`.
+        :param bool debug: Should we print extra debug messages? True if yes, False if no; defaults to False.
+        :param Logger logger: The Logger to log messages to. Specify your own if you want to control where the
+            log messages go. By default, uses the namespace `__name__` for logging.
         """
         self._attributes = dict()
         self._cameras = dict()
