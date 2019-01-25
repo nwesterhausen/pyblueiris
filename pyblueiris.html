@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyblueiris package &#8212; pyblueiris 0.2.8 documentation</title>
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Welcome to pyblueiris’s documentation!" href="index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          pyblueiris</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">pyblueiris package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">pyblueiris package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-pyblueiris.blueiris">pyblueiris.blueiris module</a></li>
+<li><a class="reference internal" href="#module-pyblueiris.camera">pyblueiris.camera module</a></li>
+<li><a class="reference internal" href="#module-pyblueiris.client">pyblueiris.client module</a></li>
+<li><a class="reference internal" href="#module-pyblueiris.const">pyblueiris.const module</a></li>
+<li><a class="reference internal" href="#module-pyblueiris">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="index.html" title="Previous Chapter: Welcome to pyblueiris’s documentation!"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; Welcome to py...</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/pyblueiris.rst.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
+  <div class="section" id="pyblueiris-package">
+<h1>pyblueiris package<a class="headerlink" href="#pyblueiris-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pyblueiris.blueiris">
+<span id="pyblueiris-blueiris-module"></span><h2>pyblueiris.blueiris module<a class="headerlink" href="#module-pyblueiris.blueiris" title="Permalink to this headline">¶</a></h2>
+<p>Module for communicating with a Blue Iris server.</p>
+<dl class="class">
+<dt id="pyblueiris.blueiris.BlueIris">
+<em class="property">class </em><code class="descclassname">pyblueiris.blueiris.</code><code class="descname">BlueIris</code><span class="sig-paren">(</span><em>aiosession: aiohttp.client.ClientSession</em>, <em>user</em>, <em>password</em>, <em>protocol</em>, <em>host</em>, <em>port=''</em>, <em>debug=False</em>, <em>logger=&lt;Logger pyblueiris.blueiris (WARNING)&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class which represents a Blue Iris server.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>aiosession</strong> (<em>ClientSession</em>) – AIOHTTP Client Session to run the commands through (required)</li>
+<li><strong>user</strong> (<em>str</em>) – Username used to authenticate to the Blue Iris server.</li>
+<li><strong>password</strong> (<em>str</em>) – Password used to authenticate to the Blue Iris server.</li>
+<li><strong>protocol</strong> (<em>str</em>) – Protocol used to communicate with the Blue Iris server. This should be either <cite>http</cite> or
+<cite>https</cite>.</li>
+<li><strong>host</strong> (<em>str</em>) – The IP address or FQDN used to communicate with the Blue Iris server.</li>
+<li><strong>port</strong> (<em>int</em>) – The port used to communicate with the Blue Iris server. This defauls to match <cite>protocol</cite> –
+80 for <cite>http</cite> and 443 for <cite>https</cite>.</li>
+<li><strong>debug</strong> (<em>bool</em>) – Should we print extra debug messages? True if yes, False if no; defaults to False.</li>
+<li><strong>logger</strong> (<em>Logger</em>) – The Logger to log messages to. Specify your own if you want to control where the
+log messages go. By default, uses the namespace <cite>__name__</cite> for logging.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pyblueiris.blueiris.BlueIris.admin">
+<code class="descname">admin</code><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.admin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if we are authenticated as admin.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.blueiris.BlueIris.attributes">
+<code class="descname">attributes</code><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict of the Blue Iris server properties.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.blueiris.BlueIris.base_url">
+<code class="descname">base_url</code><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.base_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the configured base url, including protocol and port.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.blueiris.BlueIris.cameras">
+<code class="descname">cameras</code><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.cameras" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return list of cameras on Blue Iris.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.enable_camera">
+<code class="descname">enable_camera</code><span class="sig-paren">(</span><em>camera</em>, <em>enabled=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.enable_camera"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.enable_camera" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send camconfig command to enable camera.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>enabled</strong> (<em>bool</em>) – True to enable the camera, False to disable. Defaults to True.</li>
+<li><strong>camera</strong> (<em>str</em>) – The camera shortcode for the camera to send this command to.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.get_camera_details">
+<code class="descname">get_camera_details</code><span class="sig-paren">(</span><em>camera_shortname</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.get_camera_details"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.get_camera_details" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the camera details for requested camera. If last update was UPDATE_THRESHOLD seconds ago, refresh.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>camera_shortname</strong> (<em>str</em>) – The camera shortcode for the camera to send this command to.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.is_valid_camera">
+<code class="descname">is_valid_camera</code><span class="sig-paren">(</span><em>cam_shortcode</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.is_valid_camera"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.is_valid_camera" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if cam_shortcode is a valid camera known to Blue Iris.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cam_shortcode</strong> (<em>str</em>) – Camera shortcode to check for validity.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.blueiris.BlueIris.name">
+<code class="descname">name</code><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the name of the Blue Iris server.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.pause_camera">
+<code class="descname">pause_camera</code><span class="sig-paren">(</span><em>camera</em>, <em>seconds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.pause_camera"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.pause_camera" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send camconfig command to pause camera for seconds (rounded down to nearest 30 seconds).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>camera</strong> (<em>str</em>) – The camera shortcode for the camera to send this command to.</li>
+<li><strong>seconds</strong> (<em>int</em>) – The number of seconds to pause the camera (will get rounded down to nearest 30 seconds).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.pause_camera_add1hour">
+<code class="descname">pause_camera_add1hour</code><span class="sig-paren">(</span><em>camera</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.pause_camera_add1hour"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.pause_camera_add1hour" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send camconfig command to pause camera.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>camera</strong> (<em>str</em>) – The camera shortcode for the camera to send this command to.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.pause_camera_add1minute">
+<code class="descname">pause_camera_add1minute</code><span class="sig-paren">(</span><em>camera</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.pause_camera_add1minute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.pause_camera_add1minute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send camconfig command to pause camera.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>camera</strong> (<em>str</em>) – The camera shortcode for the camera to send this command to.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.pause_camera_add30seconds">
+<code class="descname">pause_camera_add30seconds</code><span class="sig-paren">(</span><em>camera</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.pause_camera_add30seconds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.pause_camera_add30seconds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send camconfig command to pause camera.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>camera</strong> (<em>str</em>) – The camera shortcode for the camera to send this command to.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.pause_camera_indefinitely">
+<code class="descname">pause_camera_indefinitely</code><span class="sig-paren">(</span><em>camera</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.pause_camera_indefinitely"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.pause_camera_indefinitely" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send camconfig command to pause camera.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>camera</strong> (<em>str</em>) – The camera shortcode for the camera to send this command to.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.reset_camera">
+<code class="descname">reset_camera</code><span class="sig-paren">(</span><em>camera</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.reset_camera"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.reset_camera" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send camconfig command to reset camera.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>camera</strong> (<em>str</em>) – The camera shortcode for the camera to send this command to.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.send_command">
+<code class="descname">send_command</code><span class="sig-paren">(</span><em>command: str</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.send_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.send_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send command to the Blue Iris server. Return a dict of data or True on success. Return False on failure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>command</strong> (<em>str</em>) – Command to send to the server. See the JSON API reference for valid values</li>
+<li><strong>params</strong> (<em>dict</em><em>(</em><em>)</em>) – Dictionary of extra parameters for the command. By default no extra parameters are sent.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.send_ptz_command">
+<code class="descname">send_ptz_command</code><span class="sig-paren">(</span><em>camera</em>, <em>command: pyblueiris.const.PTZCommand</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.send_ptz_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.send_ptz_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Operate a camera’s PTZ functionality.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>camera</strong> (<em>str</em>) – The camera shortcode for the camera to send this command to.</li>
+<li><strong>command</strong> (<a class="reference internal" href="#pyblueiris.const.PTZCommand" title="pyblueiris.const.PTZCommand"><em>PTZCommand</em></a>) – a valid PTZCommand (use the enum)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.set_camera_motion">
+<code class="descname">set_camera_motion</code><span class="sig-paren">(</span><em>camera</em>, <em>motion_enabled=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.set_camera_motion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.set_camera_motion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send camconfig command to pause camera.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>camera</strong> (<em>str</em>) – The camera shortcode for the camera to send this command to.</li>
+<li><strong>motion_enabled</strong> (<em>bool</em>) – This is True to enable motion detection, False to disable. If neither is specified,
+this will enable motion detection.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.set_camera_ptzcycle">
+<code class="descname">set_camera_ptzcycle</code><span class="sig-paren">(</span><em>camera</em>, <em>preset_cycle_enabled=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.set_camera_ptzcycle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.set_camera_ptzcycle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send camconfig command to enable or disable the preset cycle feature.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>camera</strong> (<em>str</em>) – The camera shortcode for the camera to send this command to.</li>
+<li><strong>preset_cycle_enabled</strong> (<em>bool</em>) – True to enable, False to disable (default True)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.set_camera_ptzevent_schedule">
+<code class="descname">set_camera_ptzevent_schedule</code><span class="sig-paren">(</span><em>camera</em>, <em>ptz_event_schedule_enabled=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.set_camera_ptzevent_schedule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.set_camera_ptzevent_schedule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send camconfig command to enable or disable the PTZ event schedule.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>camera</strong> (<em>str</em>) – The camera shortcode for the camera to send this command to.</li>
+<li><strong>ptz_event_schedule_enabled</strong> (<em>bool</em>) – True to enable, False to disable (default True)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.set_camera_schedule">
+<code class="descname">set_camera_schedule</code><span class="sig-paren">(</span><em>camera</em>, <em>camera_schedule_enabled=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.set_camera_schedule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.set_camera_schedule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send camconfig command to enable or disable the caerma’s custom schedule.</p>
+<p>camera - shortcode for the camera to send the command to
+camera_schedule_enabled - True to enable, False to disable (default True)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.set_status_profile">
+<code class="descname">set_status_profile</code><span class="sig-paren">(</span><em>profile_index: int</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.set_status_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.set_status_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send command to set the current profile using the index of the profile.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>profile_index</strong> (<em>int</em>) – index of the profile to set.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.set_status_profile_by_name">
+<code class="descname">set_status_profile_by_name</code><span class="sig-paren">(</span><em>profile_name: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.set_status_profile_by_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.set_status_profile_by_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send command to set the current profile using the name of the profile.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>profile_name</strong> (<em>str</em>) – name of the profile you want to set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.set_status_signal">
+<code class="descname">set_status_signal</code><span class="sig-paren">(</span><em>signal: pyblueiris.const.Signal</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.set_status_signal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.set_status_signal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send command to set the Blue Iris server signal.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>signal</strong> (<a class="reference internal" href="#pyblueiris.const.Signal" title="pyblueiris.const.Signal"><em>Signal</em></a>) – The signal to set on Blue Iris server (use the enum)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.set_sysconfig_archive">
+<code class="descname">set_sysconfig_archive</code><span class="sig-paren">(</span><em>archive_enabled: bool</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.set_sysconfig_archive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.set_sysconfig_archive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send command to enable or disable web archiving.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>archive_enabled</strong> (<em>bool</em>) – True to enable web archiving, False to disable</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.set_sysconfig_schedule">
+<code class="descname">set_sysconfig_schedule</code><span class="sig-paren">(</span><em>global_schedule_enabled: bool</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.set_sysconfig_schedule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.set_sysconfig_schedule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send command to enable or disable the global schedule.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>global_schedule_enabled</strong> (<em>bool</em>) – True to enable the global schedule, False to disable</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.setup_session">
+<code class="descname">setup_session</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.setup_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.setup_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log into the Blue Iris server and sets attributes values with server information.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.trigger_camera_motion">
+<code class="descname">trigger_camera_motion</code><span class="sig-paren">(</span><em>camera</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.trigger_camera_motion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.trigger_camera_motion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send trigger command to specific camera.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>camera</strong> (<em>str</em>) – The camera shortcode for the camera to send this command to.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.unpause_camera">
+<code class="descname">unpause_camera</code><span class="sig-paren">(</span><em>camera</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.unpause_camera"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.unpause_camera" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send camconfig command to pause camera.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>camera</strong> (<em>str</em>) – The camera shortcode for the camera to send this command to.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.update_alertlist">
+<code class="descname">update_alertlist</code><span class="sig-paren">(</span><em>camera='Index'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.update_alertlist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.update_alertlist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the list of alerts in attributes for specified camera. If no camera is specified, includes all cameras.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>camera</strong> (<em>str</em>) – The shortname-code for the camera to update the list for. By default, it will send
+“index” to update the list for all cameras.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.update_all_information">
+<code class="descname">update_all_information</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.update_all_information"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.update_all_information" title="Permalink to this definition">¶</a></dt>
+<dd><p>Refresh all the information we can get from the Blue Iris server.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.update_camlist">
+<code class="descname">update_camlist</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.update_camlist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.update_camlist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the camera config and camera list in attributes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.update_cliplist">
+<code class="descname">update_cliplist</code><span class="sig-paren">(</span><em>camera='Index'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.update_cliplist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.update_cliplist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the list of clips in attributes for specified camera. If no camera is specified, includes all cameras.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>camera</strong> (<em>str</em>) – The shortname-code for the camera to update the list for. By default, it will send
+“index” to update the list for all cameras.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.update_log">
+<code class="descname">update_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.update_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.update_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the log attribute from the Blue Iris server.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.update_status">
+<code class="descname">update_status</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.update_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.update_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the status record in attributes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.blueiris.BlueIris.update_sysconfig">
+<code class="descname">update_sysconfig</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/blueiris.html#BlueIris.update_sysconfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.update_sysconfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the system configuration status from Blue Iris.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.blueiris.BlueIris.version">
+<code class="descname">version</code><a class="headerlink" href="#pyblueiris.blueiris.BlueIris.version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the version of Blue Iris running on the server.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyblueiris.camera">
+<span id="pyblueiris-camera-module"></span><h2>pyblueiris.camera module<a class="headerlink" href="#module-pyblueiris.camera" title="Permalink to this headline">¶</a></h2>
+<p>Represent a Camera on a Blue Iris sever.</p>
+<dl class="class">
+<dt id="pyblueiris.camera.BlueIrisCamera">
+<em class="property">class </em><code class="descclassname">pyblueiris.camera.</code><code class="descname">BlueIrisCamera</code><span class="sig-paren">(</span><em>bi</em>, <em>camera_shortname: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/camera.html#BlueIrisCamera"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class which represents a Camera on a Blue Iris server.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>bi</strong> (<a class="reference internal" href="#pyblueiris.blueiris.BlueIris" title="pyblueiris.blueiris.BlueIris"><em>BlueIris</em></a>) – The Blue Iris server this camera belongs to.</li>
+<li><strong>camera_shortname</strong> (<em>str</em>) – The shortname for this camera.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.audio_supported">
+<code class="descname">audio_supported</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.audio_supported" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return bool:</th><td class="field-body">Return True if the camera has audio support.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.color">
+<code class="descname">color</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.color" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Return color of camera.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.camera.BlueIrisCamera.detect_motion">
+<code class="descname">detect_motion</code><span class="sig-paren">(</span><em>enabled=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/camera.html#BlueIrisCamera.detect_motion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.detect_motion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set this camera to detect motion or not.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>enabled</strong> (<em>bool</em>) – True to enable motion detection, False to disable. Defaults to True.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.camera.BlueIrisCamera.disable">
+<code class="descname">disable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/camera.html#BlueIrisCamera.disable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.disable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disable this camera.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.display_name">
+<code class="descname">display_name</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.display_name" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return str:</th><td class="field-body">Return the camera’s name.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.camera.BlueIrisCamera.enable">
+<code class="descname">enable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/camera.html#BlueIrisCamera.enable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.enable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable this camera.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.fps">
+<code class="descname">fps</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.fps" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return int:</th><td class="field-body">Return the FPS of the camera.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.height">
+<code class="descname">height</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.height" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return int:</th><td class="field-body">Return the height of the camera image.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.is_alerting">
+<code class="descname">is_alerting</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.is_alerting" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return bool:</th><td class="field-body">Return True if the camera is alerting.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.is_enabled">
+<code class="descname">is_enabled</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.is_enabled" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return bool:</th><td class="field-body">Return True if the camera is enabled in Blue Iris.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.is_motion">
+<code class="descname">is_motion</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.is_motion" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return bool:</th><td class="field-body">Return True if the camera detects motion.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.is_nosignal">
+<code class="descname">is_nosignal</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.is_nosignal" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return bool:</th><td class="field-body">Return True if the camera is in ‘no signal’ state.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.is_online">
+<code class="descname">is_online</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.is_online" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return bool:</th><td class="field-body">Return True if the camera is online.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.is_paused">
+<code class="descname">is_paused</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.is_paused" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return bool:</th><td class="field-body">Return True if the camera is paused.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.is_recording">
+<code class="descname">is_recording</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.is_recording" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return bool:</th><td class="field-body">Return True if the camera is recording.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.is_triggered">
+<code class="descname">is_triggered</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.is_triggered" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return bool:</th><td class="field-body">Return True if the camera is triggered.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.is_yellow">
+<code class="descname">is_yellow</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.is_yellow" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return bool:</th><td class="field-body">Return True if the camera is yellow in Blue Iris.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.last_update_time">
+<code class="descname">last_update_time</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.last_update_time" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return long:</th><td class="field-body">Return the EPOCH of when this object last updated its camera information.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.mjpeg_url">
+<code class="descname">mjpeg_url</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.mjpeg_url" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return str:</th><td class="field-body">Return the URL to the mjpeg stream for this camera.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.num_clips">
+<code class="descname">num_clips</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.num_clips" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return int:</th><td class="field-body">Return the number of clips the camera has recorded.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.num_norecording">
+<code class="descname">num_norecording</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.num_norecording" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return int:</th><td class="field-body">Return the number of ‘no recording’ events.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.num_nosignal">
+<code class="descname">num_nosignal</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.num_nosignal" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return int:</th><td class="field-body">Return the number of ‘no signal’ events.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.num_triggers">
+<code class="descname">num_triggers</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.num_triggers" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return int:</th><td class="field-body">Return the number of ‘trigger’ events.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.profile">
+<code class="descname">profile</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.profile" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return int:</th><td class="field-body">Return the index of the profile active on the camera.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.ptz_supported">
+<code class="descname">ptz_supported</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.ptz_supported" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return bool:</th><td class="field-body">Return True if the camera has PTZ support.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.short_name">
+<code class="descname">short_name</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.short_name" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return str:</th><td class="field-body">Return the camera shortcode for the camera.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.camera.BlueIrisCamera.update_camconfig">
+<code class="descname">update_camconfig</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/camera.html#BlueIrisCamera.update_camconfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.update_camconfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update this object’s details on the camera it represents.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.camera.BlueIrisCamera.update_properties">
+<code class="descname">update_properties</code><span class="sig-paren">(</span><em>camlist_data: {}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/camera.html#BlueIrisCamera.update_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.update_properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update this objects properties based on a dictionary of camera data.</p>
+<p>The camera data dictionary should come from the <cite>camlist</cite> command sent to the Blue Iris server.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>camlist_data</strong> (<em>dict</em><em>(</em><em>)</em>) – Dictionary of property values for this camera.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.camera.BlueIrisCamera.width">
+<code class="descname">width</code><a class="headerlink" href="#pyblueiris.camera.BlueIrisCamera.width" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return int:</th><td class="field-body">Return the width of the camera image.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyblueiris.client">
+<span id="pyblueiris-client-module"></span><h2>pyblueiris.client module<a class="headerlink" href="#module-pyblueiris.client" title="Permalink to this headline">¶</a></h2>
+<p>Async client helper for the Blue Iris class.</p>
+<dl class="class">
+<dt id="pyblueiris.client.BlueIrisClient">
+<em class="property">class </em><code class="descclassname">pyblueiris.client.</code><code class="descname">BlueIrisClient</code><span class="sig-paren">(</span><em>session: aiohttp.client.ClientSession</em>, <em>endpointurl: str</em>, <em>debug: bool</em>, <em>logger: logging.Logger</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/client.html#BlueIrisClient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.client.BlueIrisClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class which facilitates communication between the BlueIris object and the Blue Iris server.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>session</strong> (<em>ClientSession</em>) – ClientSession to use for communication with the Blue Iris server.</li>
+<li><strong>endpointurl</strong> (<em>str</em>) – Full URL used to communicate with the Blue Iris server. This includes the protocol
+(either http or https) and the ‘/json’ path. If you use a non-standard port (i.e. something other than
+80 for http and 443 for https), it needs to be specified after the host. <cite>http://192.168.1.15:81/json</cite></li>
+<li><strong>debug</strong> (<em>bool</em>) – True to have more verbose logging, defaults to False.</li>
+<li><strong>logger</strong> (<em>Logger</em>) – Logger to send log messages to.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyblueiris.client.BlueIrisClient.cmd">
+<code class="descname">cmd</code><span class="sig-paren">(</span><em>command</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/client.html#BlueIrisClient.cmd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.client.BlueIrisClient.cmd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a command to the Blue Iris server.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>command</strong> (<em>str</em>) – Command to send to the Blue Iris server.</li>
+<li><strong>params</strong> (<em>dict</em><em>(</em><em>)</em>) – Parameters for the command.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return dict():</th><td class="field-body"><p class="first last">Return the ‘data’ portion of the JSON response. If there was no ‘data’ in the response, return
+the entire response JSON.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.client.BlueIrisClient.generate_response">
+<code class="descname">generate_response</code><span class="sig-paren">(</span><em>username</em>, <em>password</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/client.html#BlueIrisClient.generate_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.client.BlueIrisClient.generate_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate the response needed to authenticate to the Blue Iris server.</p>
+<p>When communicating with the Blue Iris JSON API, you must provide a valid response when sending commands. This
+method updates the stored response used by this client.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Warning:</th><td class="field-body"><p class="first">This object must have a current username, password and session for this method to work correctly!</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>username</strong> (<em>str</em>) – Username used to authenticate to the Blue Iris server.</li>
+<li><strong>password</strong> (<em>str</em>) – Password used to authenitcate to the Blue Iris server.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyblueiris.client.BlueIrisClient.login">
+<code class="descname">login</code><span class="sig-paren">(</span><em>username</em>, <em>password</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/client.html#BlueIrisClient.login"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.client.BlueIrisClient.login" title="Permalink to this definition">¶</a></dt>
+<dd><p>Authenticate to the Blue Iris server.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>username</strong> (<em>str</em>) – Username used to authenticate to the Blue Iris server.</li>
+<li><strong>password</strong> (<em>str</em>) – Password used to authenitcate to the Blue Iris server.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return dict():</th><td class="field-body"><p class="first last">Return dictionary of server properties or empty dictionary on failure.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyblueiris.const">
+<span id="pyblueiris-const-module"></span><h2>pyblueiris.const module<a class="headerlink" href="#module-pyblueiris.const" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyblueiris.const.CAMConfig">
+<em class="property">class </em><code class="descclassname">pyblueiris.const.</code><code class="descname">CAMConfig</code><a class="reference internal" href="_modules/pyblueiris/const.html#CAMConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.const.CAMConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Enumaration of the possible values used when changing CAMConfig.</p>
+<dl class="attribute">
+<dt id="pyblueiris.const.CAMConfig.PAUSE_ADD_1_HOUR">
+<code class="descname">PAUSE_ADD_1_HOUR</code><em class="property"> = 3</em><a class="headerlink" href="#pyblueiris.const.CAMConfig.PAUSE_ADD_1_HOUR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.CAMConfig.PAUSE_ADD_1_MIN">
+<code class="descname">PAUSE_ADD_1_MIN</code><em class="property"> = 2</em><a class="headerlink" href="#pyblueiris.const.CAMConfig.PAUSE_ADD_1_MIN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.CAMConfig.PAUSE_ADD_30_SEC">
+<code class="descname">PAUSE_ADD_30_SEC</code><em class="property"> = 1</em><a class="headerlink" href="#pyblueiris.const.CAMConfig.PAUSE_ADD_30_SEC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.CAMConfig.PAUSE_CANCEL">
+<code class="descname">PAUSE_CANCEL</code><em class="property"> = 0</em><a class="headerlink" href="#pyblueiris.const.CAMConfig.PAUSE_CANCEL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.CAMConfig.PAUSE_INDEFINITELY">
+<code class="descname">PAUSE_INDEFINITELY</code><em class="property"> = -1</em><a class="headerlink" href="#pyblueiris.const.CAMConfig.PAUSE_INDEFINITELY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyblueiris.const.PTZCommand">
+<em class="property">class </em><code class="descclassname">pyblueiris.const.</code><code class="descname">PTZCommand</code><a class="reference internal" href="_modules/pyblueiris/const.html#PTZCommand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.const.PTZCommand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Enumaration of the possible values for sending PTZ commands.</p>
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.BRIGHTNESS_0">
+<code class="descname">BRIGHTNESS_0</code><em class="property"> = 11</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.BRIGHTNESS_0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.BRIGHTNESS_1">
+<code class="descname">BRIGHTNESS_1</code><em class="property"> = 12</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.BRIGHTNESS_1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.BRIGHTNESS_10">
+<code class="descname">BRIGHTNESS_10</code><em class="property"> = 21</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.BRIGHTNESS_10" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.BRIGHTNESS_11">
+<code class="descname">BRIGHTNESS_11</code><em class="property"> = 22</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.BRIGHTNESS_11" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.BRIGHTNESS_12">
+<code class="descname">BRIGHTNESS_12</code><em class="property"> = 23</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.BRIGHTNESS_12" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.BRIGHTNESS_13">
+<code class="descname">BRIGHTNESS_13</code><em class="property"> = 24</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.BRIGHTNESS_13" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.BRIGHTNESS_14">
+<code class="descname">BRIGHTNESS_14</code><em class="property"> = 25</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.BRIGHTNESS_14" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.BRIGHTNESS_15">
+<code class="descname">BRIGHTNESS_15</code><em class="property"> = 26</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.BRIGHTNESS_15" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.BRIGHTNESS_2">
+<code class="descname">BRIGHTNESS_2</code><em class="property"> = 13</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.BRIGHTNESS_2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.BRIGHTNESS_3">
+<code class="descname">BRIGHTNESS_3</code><em class="property"> = 14</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.BRIGHTNESS_3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.BRIGHTNESS_4">
+<code class="descname">BRIGHTNESS_4</code><em class="property"> = 15</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.BRIGHTNESS_4" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.BRIGHTNESS_5">
+<code class="descname">BRIGHTNESS_5</code><em class="property"> = 16</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.BRIGHTNESS_5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.BRIGHTNESS_6">
+<code class="descname">BRIGHTNESS_6</code><em class="property"> = 17</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.BRIGHTNESS_6" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.BRIGHTNESS_7">
+<code class="descname">BRIGHTNESS_7</code><em class="property"> = 18</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.BRIGHTNESS_7" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.BRIGHTNESS_8">
+<code class="descname">BRIGHTNESS_8</code><em class="property"> = 19</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.BRIGHTNESS_8" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.BRIGHTNESS_9">
+<code class="descname">BRIGHTNESS_9</code><em class="property"> = 20</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.BRIGHTNESS_9" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.CENTER">
+<code class="descname">CENTER</code><em class="property"> = 4</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.CENTER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.CONTRAST_0">
+<code class="descname">CONTRAST_0</code><em class="property"> = 27</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.CONTRAST_0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.CONTRAST_1">
+<code class="descname">CONTRAST_1</code><em class="property"> = 28</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.CONTRAST_1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.CONTRAST_2">
+<code class="descname">CONTRAST_2</code><em class="property"> = 29</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.CONTRAST_2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.CONTRAST_3">
+<code class="descname">CONTRAST_3</code><em class="property"> = 30</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.CONTRAST_3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.CONTRAST_4">
+<code class="descname">CONTRAST_4</code><em class="property"> = 31</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.CONTRAST_4" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.CONTRAST_5">
+<code class="descname">CONTRAST_5</code><em class="property"> = 32</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.CONTRAST_5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.CONTRAST_6">
+<code class="descname">CONTRAST_6</code><em class="property"> = 33</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.CONTRAST_6" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.HOME">
+<code class="descname">HOME</code><em class="property"> = 4</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.HOME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.IR_OFF">
+<code class="descname">IR_OFF</code><em class="property"> = 35</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.IR_OFF" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.IR_ON">
+<code class="descname">IR_ON</code><em class="property"> = 34</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.IR_ON" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.PAN_LEFT">
+<code class="descname">PAN_LEFT</code><em class="property"> = 0</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.PAN_LEFT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.PAN_RIGHT">
+<code class="descname">PAN_RIGHT</code><em class="property"> = 1</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.PAN_RIGHT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.POWER_50">
+<code class="descname">POWER_50</code><em class="property"> = 8</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.POWER_50" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.POWER_60">
+<code class="descname">POWER_60</code><em class="property"> = 9</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.POWER_60" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.POWER_OUTDOOR">
+<code class="descname">POWER_OUTDOOR</code><em class="property"> = 10</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.POWER_OUTDOOR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.PRESET_1">
+<code class="descname">PRESET_1</code><em class="property"> = 101</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.PRESET_1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.PRESET_10">
+<code class="descname">PRESET_10</code><em class="property"> = 110</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.PRESET_10" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.PRESET_11">
+<code class="descname">PRESET_11</code><em class="property"> = 111</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.PRESET_11" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.PRESET_12">
+<code class="descname">PRESET_12</code><em class="property"> = 112</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.PRESET_12" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.PRESET_13">
+<code class="descname">PRESET_13</code><em class="property"> = 113</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.PRESET_13" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.PRESET_14">
+<code class="descname">PRESET_14</code><em class="property"> = 114</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.PRESET_14" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.PRESET_15">
+<code class="descname">PRESET_15</code><em class="property"> = 115</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.PRESET_15" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.PRESET_16">
+<code class="descname">PRESET_16</code><em class="property"> = 116</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.PRESET_16" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.PRESET_17">
+<code class="descname">PRESET_17</code><em class="property"> = 117</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.PRESET_17" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.PRESET_18">
+<code class="descname">PRESET_18</code><em class="property"> = 118</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.PRESET_18" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.PRESET_19">
+<code class="descname">PRESET_19</code><em class="property"> = 119</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.PRESET_19" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.PRESET_2">
+<code class="descname">PRESET_2</code><em class="property"> = 102</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.PRESET_2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.PRESET_20">
+<code class="descname">PRESET_20</code><em class="property"> = 120</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.PRESET_20" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.PRESET_3">
+<code class="descname">PRESET_3</code><em class="property"> = 103</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.PRESET_3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.PRESET_4">
+<code class="descname">PRESET_4</code><em class="property"> = 104</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.PRESET_4" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.PRESET_5">
+<code class="descname">PRESET_5</code><em class="property"> = 105</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.PRESET_5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.PRESET_6">
+<code class="descname">PRESET_6</code><em class="property"> = 106</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.PRESET_6" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.PRESET_7">
+<code class="descname">PRESET_7</code><em class="property"> = 107</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.PRESET_7" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.PRESET_8">
+<code class="descname">PRESET_8</code><em class="property"> = 108</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.PRESET_8" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.PRESET_9">
+<code class="descname">PRESET_9</code><em class="property"> = 109</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.PRESET_9" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.TILT_DOWN">
+<code class="descname">TILT_DOWN</code><em class="property"> = 3</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.TILT_DOWN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.TILT_UP">
+<code class="descname">TILT_UP</code><em class="property"> = 2</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.TILT_UP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.ZOOM_IN">
+<code class="descname">ZOOM_IN</code><em class="property"> = 5</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.ZOOM_IN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.PTZCommand.ZOOM_OUT">
+<code class="descname">ZOOM_OUT</code><em class="property"> = 6</em><a class="headerlink" href="#pyblueiris.const.PTZCommand.ZOOM_OUT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyblueiris.const.Signal">
+<em class="property">class </em><code class="descclassname">pyblueiris.const.</code><code class="descname">Signal</code><a class="reference internal" href="_modules/pyblueiris/const.html#Signal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.const.Signal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Enumaration of the possible values of the stoplight signal property.</p>
+<dl class="attribute">
+<dt id="pyblueiris.const.Signal.GREEN">
+<code class="descname">GREEN</code><em class="property"> = 1</em><a class="headerlink" href="#pyblueiris.const.Signal.GREEN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Green stoplight signal.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.Signal.RED">
+<code class="descname">RED</code><em class="property"> = 0</em><a class="headerlink" href="#pyblueiris.const.Signal.RED" title="Permalink to this definition">¶</a></dt>
+<dd><p>Red stoplight signal.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyblueiris.const.Signal.YELLOW">
+<code class="descname">YELLOW</code><em class="property"> = 2</em><a class="headerlink" href="#pyblueiris.const.Signal.YELLOW" title="Permalink to this definition">¶</a></dt>
+<dd><p>Yellow stoplight signal.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pyblueiris.const.has_value">
+<code class="descclassname">pyblueiris.const.</code><code class="descname">has_value</code><span class="sig-paren">(</span><em>enum: enum.Enum</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyblueiris/const.html#has_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyblueiris.const.has_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if <cite>value</cite> is a valid member of <cite>enum</cite>.</p>
+<p>You can check either the string (GREEN, RED..) or the value (0, 1..).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>enum</strong> (<em>Enum</em>) – The enumeration to check for <cite>value</cite> in.</li>
+<li><strong>value</strong> – The enum string key or its int value.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Return true if the value is within this enum, False if it isn’t.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyblueiris">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pyblueiris" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2019, Nicholas Westerhausen.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

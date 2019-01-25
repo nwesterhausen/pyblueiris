@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyblueiris.const &#8212; pyblueiris 0.2.8 documentation</title>
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html">
+          pyblueiris</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pyblueiris.html">pyblueiris package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
+  <h1>Source code for pyblueiris.const</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
+
+
+<div class="viewcode-block" id="has_value"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.const.has_value">[docs]</a><span class="k">def</span> <span class="nf">has_value</span><span class="p">(</span><span class="n">enum</span><span class="p">:</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return True if `value` is a valid member of `enum`.</span>
+
+<span class="sd">    You can check either the string (GREEN, RED..) or the value (0, 1..).</span>
+
+<span class="sd">    :param Enum enum: The enumeration to check for `value` in.</span>
+<span class="sd">    :param value: The enum string key or its int value.</span>
+<span class="sd">    :return: Return true if the value is within this enum, False if it isn&#39;t.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="c1"># We were provided a string, let&#39;s check it</span>
+        <span class="k">return</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">enum</span><span class="o">.</span><span class="n">__members__</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Assume we were given an int corresponding to the value assigned in this class</span>
+        <span class="c1"># noinspection PyTypeChecker</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">value</span> <span class="o">==</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">enum</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Signal"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.const.Signal">[docs]</a><span class="k">class</span> <span class="nc">Signal</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Enumaration of the possible values of the stoplight signal property.&quot;&quot;&quot;</span>
+
+    <span class="n">RED</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="sd">&quot;&quot;&quot;Red stoplight signal.&quot;&quot;&quot;</span>
+    <span class="n">YELLOW</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="sd">&quot;&quot;&quot;Yellow stoplight signal.&quot;&quot;&quot;</span>
+    <span class="n">GREEN</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="sd">&quot;&quot;&quot;Green stoplight signal.&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="PTZCommand"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.const.PTZCommand">[docs]</a><span class="k">class</span> <span class="nc">PTZCommand</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Enumaration of the possible values for sending PTZ commands.&quot;&quot;&quot;</span>
+
+    <span class="n">PAN_LEFT</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">PAN_RIGHT</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">TILT_UP</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">TILT_DOWN</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">CENTER</span> <span class="o">=</span> <span class="n">HOME</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">ZOOM_IN</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">ZOOM_OUT</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">POWER_50</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">POWER_60</span> <span class="o">=</span> <span class="mi">9</span>
+    <span class="n">POWER_OUTDOOR</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">BRIGHTNESS_0</span> <span class="o">=</span> <span class="mi">11</span>
+    <span class="n">BRIGHTNESS_1</span> <span class="o">=</span> <span class="mi">12</span>
+    <span class="n">BRIGHTNESS_2</span> <span class="o">=</span> <span class="mi">13</span>
+    <span class="n">BRIGHTNESS_3</span> <span class="o">=</span> <span class="mi">14</span>
+    <span class="n">BRIGHTNESS_4</span> <span class="o">=</span> <span class="mi">15</span>
+    <span class="n">BRIGHTNESS_5</span> <span class="o">=</span> <span class="mi">16</span>
+    <span class="n">BRIGHTNESS_6</span> <span class="o">=</span> <span class="mi">17</span>
+    <span class="n">BRIGHTNESS_7</span> <span class="o">=</span> <span class="mi">18</span>
+    <span class="n">BRIGHTNESS_8</span> <span class="o">=</span> <span class="mi">19</span>
+    <span class="n">BRIGHTNESS_9</span> <span class="o">=</span> <span class="mi">20</span>
+    <span class="n">BRIGHTNESS_10</span> <span class="o">=</span> <span class="mi">21</span>
+    <span class="n">BRIGHTNESS_11</span> <span class="o">=</span> <span class="mi">22</span>
+    <span class="n">BRIGHTNESS_12</span> <span class="o">=</span> <span class="mi">23</span>
+    <span class="n">BRIGHTNESS_13</span> <span class="o">=</span> <span class="mi">24</span>
+    <span class="n">BRIGHTNESS_14</span> <span class="o">=</span> <span class="mi">25</span>
+    <span class="n">BRIGHTNESS_15</span> <span class="o">=</span> <span class="mi">26</span>
+    <span class="n">CONTRAST_0</span> <span class="o">=</span> <span class="mi">27</span>
+    <span class="n">CONTRAST_1</span> <span class="o">=</span> <span class="mi">28</span>
+    <span class="n">CONTRAST_2</span> <span class="o">=</span> <span class="mi">29</span>
+    <span class="n">CONTRAST_3</span> <span class="o">=</span> <span class="mi">30</span>
+    <span class="n">CONTRAST_4</span> <span class="o">=</span> <span class="mi">31</span>
+    <span class="n">CONTRAST_5</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">CONTRAST_6</span> <span class="o">=</span> <span class="mi">33</span>
+    <span class="n">IR_ON</span> <span class="o">=</span> <span class="mi">34</span>
+    <span class="n">IR_OFF</span> <span class="o">=</span> <span class="mi">35</span>
+    <span class="n">PRESET_1</span> <span class="o">=</span> <span class="mi">101</span>
+    <span class="n">PRESET_2</span> <span class="o">=</span> <span class="mi">102</span>
+    <span class="n">PRESET_3</span> <span class="o">=</span> <span class="mi">103</span>
+    <span class="n">PRESET_4</span> <span class="o">=</span> <span class="mi">104</span>
+    <span class="n">PRESET_5</span> <span class="o">=</span> <span class="mi">105</span>
+    <span class="n">PRESET_6</span> <span class="o">=</span> <span class="mi">106</span>
+    <span class="n">PRESET_7</span> <span class="o">=</span> <span class="mi">107</span>
+    <span class="n">PRESET_8</span> <span class="o">=</span> <span class="mi">108</span>
+    <span class="n">PRESET_9</span> <span class="o">=</span> <span class="mi">109</span>
+    <span class="n">PRESET_10</span> <span class="o">=</span> <span class="mi">110</span>
+    <span class="n">PRESET_11</span> <span class="o">=</span> <span class="mi">111</span>
+    <span class="n">PRESET_12</span> <span class="o">=</span> <span class="mi">112</span>
+    <span class="n">PRESET_13</span> <span class="o">=</span> <span class="mi">113</span>
+    <span class="n">PRESET_14</span> <span class="o">=</span> <span class="mi">114</span>
+    <span class="n">PRESET_15</span> <span class="o">=</span> <span class="mi">115</span>
+    <span class="n">PRESET_16</span> <span class="o">=</span> <span class="mi">116</span>
+    <span class="n">PRESET_17</span> <span class="o">=</span> <span class="mi">117</span>
+    <span class="n">PRESET_18</span> <span class="o">=</span> <span class="mi">118</span>
+    <span class="n">PRESET_19</span> <span class="o">=</span> <span class="mi">119</span>
+    <span class="n">PRESET_20</span> <span class="o">=</span> <span class="mi">120</span></div>
+
+
+<div class="viewcode-block" id="CAMConfig"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.const.CAMConfig">[docs]</a><span class="k">class</span> <span class="nc">CAMConfig</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Enumaration of the possible values used when changing CAMConfig.&quot;&quot;&quot;</span>
+
+    <span class="n">PAUSE_INDEFINITELY</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">PAUSE_CANCEL</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">PAUSE_ADD_30_SEC</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">PAUSE_ADD_1_MIN</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">PAUSE_ADD_1_HOUR</span> <span class="o">=</span> <span class="mi">3</span></div>
+
+
+<span class="n">LOG_SEVERITY</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">,</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;ERROR&quot;</span>
+<span class="p">}</span>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2019, Nicholas Westerhausen.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

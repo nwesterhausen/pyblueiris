@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyblueiris.blueiris &#8212; pyblueiris 0.2.8 documentation</title>
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html">
+          pyblueiris</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pyblueiris.html">pyblueiris package</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 content">
+      
+  <h1>Source code for pyblueiris.blueiris</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Module for communicating with a Blue Iris server.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">floor</span>
+
+<span class="kn">from</span> <span class="nn">.client</span> <span class="k">import</span> <span class="n">BlueIrisClient</span>
+<span class="kn">from</span> <span class="nn">.camera</span> <span class="k">import</span> <span class="n">BlueIrisCamera</span>
+<span class="kn">from</span> <span class="nn">.const</span> <span class="k">import</span> <span class="n">PTZCommand</span><span class="p">,</span> <span class="n">Signal</span><span class="p">,</span> <span class="n">CAMConfig</span>
+<span class="kn">from</span> <span class="nn">aiohttp</span> <span class="k">import</span> <span class="n">ClientSession</span>
+
+<span class="c1"># The following constants are used when understanding the data returned by</span>
+<span class="c1"># the login command. We get a lot of information about the server. These</span>
+<span class="c1"># constants help make any future changes to the API easier and make the</span>
+<span class="c1"># code down below a little less &#39;magic&#39;</span>
+<span class="n">SESSION_NAME</span> <span class="o">=</span> <span class="s1">&#39;system name&#39;</span>
+<span class="n">SESSION_PROFILES</span> <span class="o">=</span> <span class="s1">&#39;profiles&#39;</span>
+<span class="n">SESSION_IAM_ADMIN</span> <span class="o">=</span> <span class="s1">&#39;admin&#39;</span>
+<span class="n">SESSION_PTZ_ALLOWED</span> <span class="o">=</span> <span class="s1">&#39;ptz&#39;</span>
+<span class="n">SESSION_DIO_AVAILABLE</span> <span class="o">=</span> <span class="s1">&#39;dio&#39;</span>
+<span class="n">SESSION_CLIPS_ALLOWED</span> <span class="o">=</span> <span class="s1">&#39;clips&#39;</span>
+<span class="n">SESSION_SCHEDULES</span> <span class="o">=</span> <span class="s1">&#39;schedules&#39;</span>
+<span class="n">SESSION_VERSION</span> <span class="o">=</span> <span class="s1">&#39;version&#39;</span>
+<span class="n">SESSION_AUDIO_ALLOWED</span> <span class="o">=</span> <span class="s1">&#39;audio&#39;</span>
+<span class="n">SESSION_STREAM_TIMELIMIT</span> <span class="o">=</span> <span class="s1">&#39;streamtimelimit&#39;</span>
+<span class="n">SESSION_LICENSE</span> <span class="o">=</span> <span class="s1">&#39;license&#39;</span>
+<span class="n">SESSION_SUPPORT</span> <span class="o">=</span> <span class="s1">&#39;support&#39;</span>
+<span class="n">SESSION_USER</span> <span class="o">=</span> <span class="s1">&#39;user&#39;</span>
+<span class="n">SESSION_LATITUDE</span> <span class="o">=</span> <span class="s1">&#39;latitude&#39;</span>
+<span class="n">SESSION_LONGITUDE</span> <span class="o">=</span> <span class="s1">&#39;longitude&#39;</span>
+<span class="n">SESSION_TZONE</span> <span class="o">=</span> <span class="s1">&#39;tzone&#39;</span>
+<span class="n">SESSION_STREAMS</span> <span class="o">=</span> <span class="s1">&#39;streams&#39;</span>
+<span class="n">SESSION_SOUNDS</span> <span class="o">=</span> <span class="s1">&#39;sounds&#39;</span>
+<span class="n">SESSION_WWW_SOUNDS</span> <span class="o">=</span> <span class="s1">&#39;www_sounds&#39;</span>
+
+<span class="c1"># These values are used to initialize values which are unknown at the time.</span>
+<span class="n">UNKNOWN_DICT</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;-1&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">}</span>
+<span class="n">UNKNOWN_LIST</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;-1&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">}]</span>
+<span class="n">UNKNOWN_STRING</span> <span class="o">=</span> <span class="s2">&quot;noname&quot;</span>
+
+<span class="n">STALE_THRESHOLD</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># This was going to be used to auto-update attributes when calling the property</span>
+<span class="n">LAST_UPDATE_KEY</span> <span class="o">=</span> <span class="s2">&quot;lastupdate&quot;</span>  <span class="c1"># Used in a dict to store the last update time</span>
+
+<span class="c1"># Creates a default logger if none is provided during instantiation</span>
+<span class="n">_LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="BlueIris"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris">[docs]</a><span class="k">class</span> <span class="nc">BlueIris</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Class which represents a Blue Iris server.</span>
+
+<span class="sd">    :param ClientSession aiosession: AIOHTTP Client Session to run the commands through (required)</span>
+<span class="sd">    :param str user: Username used to authenticate to the Blue Iris server.</span>
+<span class="sd">    :param str password: Password used to authenticate to the Blue Iris server.</span>
+<span class="sd">    :param str protocol: Protocol used to communicate with the Blue Iris server. This should be either `http` or</span>
+<span class="sd">        `https`.</span>
+<span class="sd">    :param str host: The IP address or FQDN used to communicate with the Blue Iris server.</span>
+<span class="sd">    :param int port: The port used to communicate with the Blue Iris server. This defauls to match `protocol` --</span>
+<span class="sd">        80 for `http` and 443 for `https`.</span>
+<span class="sd">    :param bool debug: Should we print extra debug messages? True if yes, False if no; defaults to False.</span>
+<span class="sd">    :param Logger logger: The Logger to log messages to. Specify your own if you want to control where the</span>
+<span class="sd">        log messages go. By default, uses the namespace `__name__` for logging.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BlueIris.__init__"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aiosession</span><span class="p">:</span> <span class="n">ClientSession</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">protocol</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">_LOGGER</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a representation of a Blue Iris server which can be interacted with.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cameras</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_camera_details</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_camera_details</span><span class="p">[</span><span class="n">LAST_UPDATE_KEY</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">am_logged_in</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">port</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="n">host</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">protocol</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;http&#39;</span><span class="p">,</span> <span class="s1">&#39;https&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid protocol passed </span><span class="si">{}</span><span class="s2">. (Expected &#39;http&#39; or &#39;https&#39;. Using &#39;http&#39;)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">protocol</span><span class="p">))</span>
+            <span class="n">protocol</span> <span class="o">=</span> <span class="s1">&#39;http&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">://</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="n">host</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/json&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_url</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">username</span> <span class="o">=</span> <span class="n">user</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">password</span> <span class="o">=</span> <span class="n">password</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Attempting connection to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">BlueIrisClient</span><span class="p">(</span><span class="n">aiosession</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a dict of the Blue Iris server properties.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">admin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if we are authenticated as admin.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;iam_admin&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the name of the Blue Iris server.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the version of Blue Iris running on the server.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s2">&quot;version&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">base_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the configured base url, including protocol and port.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_url</span>
+
+<div class="viewcode-block" id="BlueIris.setup_session"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.setup_session">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">setup_session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Log into the Blue Iris server and sets attributes values with server information.&quot;&quot;&quot;</span>
+        <span class="n">full_reply</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">username</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;data&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">full_reply</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Did not get a good result from login command. Failing login.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">full_reply</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="c1"># Extract the server information from the login reply</span>
+        <span class="n">session_info</span> <span class="o">=</span> <span class="n">full_reply</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SESSION_NAME</span><span class="p">,</span> <span class="n">UNKNOWN_STRING</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;profiles&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SESSION_PROFILES</span><span class="p">,</span> <span class="n">UNKNOWN_LIST</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;iam_admin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SESSION_IAM_ADMIN</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;ptz_allowed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SESSION_PTZ_ALLOWED</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;clips_allowed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SESSION_CLIPS_ALLOWED</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;schedules&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SESSION_SCHEDULES</span><span class="p">,</span> <span class="n">UNKNOWN_LIST</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SESSION_VERSION</span><span class="p">,</span> <span class="n">UNKNOWN_STRING</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;audio_allowed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SESSION_AUDIO_ALLOWED</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;dio_available&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SESSION_DIO_AVAILABLE</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;stream_timelimit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SESSION_STREAM_TIMELIMIT</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;license&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SESSION_LICENSE</span><span class="p">,</span> <span class="n">UNKNOWN_STRING</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;support&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SESSION_SUPPORT</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SESSION_USER</span><span class="p">,</span> <span class="n">UNKNOWN_STRING</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SESSION_LONGITUDE</span><span class="p">,</span> <span class="n">UNKNOWN_STRING</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SESSION_LATITUDE</span><span class="p">,</span> <span class="n">UNKNOWN_STRING</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;tzone&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SESSION_TZONE</span><span class="p">,</span> <span class="n">UNKNOWN_STRING</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;streams&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SESSION_STREAMS</span><span class="p">,</span> <span class="n">UNKNOWN_LIST</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;sounds&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SESSION_SOUNDS</span><span class="p">,</span> <span class="n">UNKNOWN_LIST</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;www_sounds&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SESSION_WWW_SOUNDS</span><span class="p">,</span> <span class="n">UNKNOWN_LIST</span><span class="p">)</span>
+        <span class="c1"># Now we are logged in, let&#39;s make sure we know it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">am_logged_in</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Session info: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">session_info</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="BlueIris.send_command"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.send_command">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send command to the Blue Iris server. Return a dict of data or True on success. Return False on failure.</span>
+<span class="sd">        </span>
+<span class="sd">        :param str command: Command to send to the server. See the JSON API reference for valid values</span>
+<span class="sd">        :param dict() params: Dictionary of extra parameters for the command. By default no extra parameters are sent.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">am_logged_in</span><span class="p">:</span>
+            <span class="c1"># If we aren&#39;t logged in for some reason, let&#39;s log in again</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">setup_session</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Unable to login, not sending </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">command</span><span class="p">))</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="c1"># Send the command to the server</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">cmd</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="c1"># Sometimes when a command is sent to Blue Iris, it doesn&#39;t return a data attribute but is still successful.</span>
+        <span class="k">if</span> <span class="s2">&quot;data&quot;</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;success&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Got a fail result without data from </span><span class="si">{}</span><span class="s2">(</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">params</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="BlueIris.update_status"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.update_status">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">update_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update the status record in attributes.&quot;&quot;&quot;</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Returned signal: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="p">[</span><span class="s2">&quot;signal&quot;</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;signal&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">status</span><span class="p">[</span><span class="s2">&quot;signal&quot;</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">[</span><span class="s2">&quot;profile&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;profile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Undefined&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;profile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;profiles&quot;</span><span class="p">][</span><span class="n">status</span><span class="p">[</span><span class="s2">&quot;profile&quot;</span><span class="p">]]</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cameras</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return list of cameras on Blue Iris.&quot;&quot;&quot;</span>
+        <span class="n">cameras_as_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cameras</span><span class="p">:</span>
+            <span class="n">cameras_as_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cameras</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">cameras_as_list</span>
+
+<div class="viewcode-block" id="BlueIris.update_camlist"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.update_camlist">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">update_camlist</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update the camera config and camera list in attributes.&quot;&quot;&quot;</span>
+        <span class="n">camlist</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;camlist&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;cameras&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;camconfig&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">camlist</span>  <span class="c1"># Stores the full result in this key</span>
+        <span class="k">if</span> <span class="n">camlist</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">camlist</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="c1"># For the &#39;cameras&#39; value in attributes, we create a short dict that uses the</span>
+        <span class="c1"># shortname for the key and the display name for the value. { CAM1: Camera 1 }</span>
+        <span class="k">for</span> <span class="n">camconfig</span> <span class="ow">in</span> <span class="n">camlist</span><span class="p">:</span>
+            <span class="n">shortcode</span> <span class="o">=</span> <span class="n">camconfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;optionValue&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;cameras&quot;</span><span class="p">][</span><span class="n">shortcode</span><span class="p">]</span> <span class="o">=</span> <span class="n">camconfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;optionDisplay&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_camera_details</span><span class="p">[</span><span class="n">shortcode</span><span class="p">]</span> <span class="o">=</span> <span class="n">camconfig</span>
+            <span class="k">if</span> <span class="n">shortcode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cameras</span> <span class="ow">and</span> <span class="s1">&#39;group&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">camconfig</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cameras</span><span class="p">[</span><span class="n">shortcode</span><span class="p">]</span> <span class="o">=</span> <span class="n">BlueIrisCamera</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shortcode</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Created BlueIrisCamera for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shortcode</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_camera_details</span><span class="p">[</span><span class="n">LAST_UPDATE_KEY</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BlueIris.update_cliplist"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.update_cliplist">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">update_cliplist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="o">=</span><span class="s2">&quot;Index&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the list of clips in attributes for specified camera. If no camera is specified, includes all cameras.</span>
+<span class="sd">        </span>
+<span class="sd">        :param str camera: The shortname-code for the camera to update the list for. By default, it will send</span>
+<span class="sd">            &quot;index&quot; to update the list for all cameras.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_camera</span><span class="p">(</span><span class="n">camera</span><span class="p">):</span>
+            <span class="c1"># If you gave us an invalid camera shortname, we&#39;re going to use index.</span>
+            <span class="n">camera</span> <span class="o">=</span> <span class="s2">&quot;Index&quot;</span>
+
+        <span class="k">if</span> <span class="s2">&quot;cliplist&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">:</span>
+            <span class="c1"># Create the cliplist attribute</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;cliplist&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">cam_shortname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;cameras&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">cam_shortname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;@Index&#39;</span><span class="p">,</span> <span class="s1">&#39;Index&#39;</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;cliplist&quot;</span><span class="p">][</span><span class="n">cam_shortname</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">cliplist</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;cliplist&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;camera&quot;</span><span class="p">:</span> <span class="n">camera</span><span class="p">})</span>
+
+        <span class="k">if</span> <span class="n">cliplist</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># We have to have a dict() for the next step</span>
+            <span class="n">cliplist</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">clip</span> <span class="ow">in</span> <span class="n">cliplist</span><span class="p">:</span>
+            <span class="c1"># Append the clips to the cliplist attribute</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;cliplist&quot;</span><span class="p">][</span><span class="n">clip</span><span class="p">[</span><span class="s2">&quot;camera&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">clip</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BlueIris.update_alertlist"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.update_alertlist">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">update_alertlist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="o">=</span><span class="s2">&quot;Index&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the list of alerts in attributes for specified camera. If no camera is specified, includes all cameras.</span>
+<span class="sd">        </span>
+<span class="sd">        :param str camera: The shortname-code for the camera to update the list for. By default, it will send</span>
+<span class="sd">            &quot;index&quot; to update the list for all cameras.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_camera</span><span class="p">(</span><span class="n">camera</span><span class="p">):</span>
+            <span class="n">camera</span> <span class="o">=</span> <span class="s2">&quot;Index&quot;</span>
+
+        <span class="k">if</span> <span class="s2">&quot;alertlist&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;alertlist&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">cam_shortname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;cameras&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">cam_shortname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;@Index&#39;</span><span class="p">,</span> <span class="s1">&#39;Index&#39;</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;alertlist&quot;</span><span class="p">][</span><span class="n">cam_shortname</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">alertlist</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;alertlist&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;camera&quot;</span><span class="p">:</span> <span class="n">camera</span><span class="p">,</span> <span class="s2">&quot;reset&quot;</span><span class="p">:</span> <span class="s2">&quot;false&quot;</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">alertlist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">dict</span><span class="p">:</span>
+            <span class="c1"># We have to have a dict() for the next step</span>
+            <span class="n">alertlist</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">alert</span> <span class="ow">in</span> <span class="n">alertlist</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;alertlist&quot;</span><span class="p">][</span><span class="n">alert</span><span class="p">[</span><span class="s2">&quot;camera&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alert</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BlueIris.update_log"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.update_log">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">update_log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update the log attribute from the Blue Iris server.&quot;&quot;&quot;</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;log&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">log</span></div>
+
+<div class="viewcode-block" id="BlueIris.update_sysconfig"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.update_sysconfig">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">update_sysconfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update the system configuration status from Blue Iris.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;iam_admin&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;The sysconfig command requires admin access. Current user is NOT admin&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sysconfig</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;sysconfig&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;sysconfig&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sysconfig</span></div>
+
+<div class="viewcode-block" id="BlueIris.update_all_information"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.update_all_information">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">update_all_information</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Refresh all the information we can get from the Blue Iris server.&quot;&quot;&quot;</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_status</span><span class="p">()</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_camlist</span><span class="p">()</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_cliplist</span><span class="p">()</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_alertlist</span><span class="p">()</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_log</span><span class="p">()</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_sysconfig</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BlueIris.is_valid_camera"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.is_valid_camera">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">is_valid_camera</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cam_shortcode</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return True if cam_shortcode is a valid camera known to Blue Iris.</span>
+<span class="sd">        </span>
+<span class="sd">        :param str cam_shortcode: Camera shortcode to check for validity.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;cameras&quot;</span><span class="p">]:</span>
+            <span class="c1"># Update our list of cameras if it doesn&#39;t exist.</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_camlist</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">cam_shortcode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;cameras&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: invalid camera provided. Choose one of </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cam_shortcode</span><span class="p">,</span>
+                                                                       <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;cameras&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="BlueIris.reset_camera"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.reset_camera">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">reset_camera</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Send camconfig command to reset camera.</span>
+
+<span class="sd">        :param str camera: The camera shortcode for the camera to send this command to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_camera</span><span class="p">(</span><span class="n">camera</span><span class="p">):</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;camconfig&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;camera&quot;</span><span class="p">:</span> <span class="n">camera</span><span class="p">,</span> <span class="s2">&quot;reset&quot;</span><span class="p">:</span> <span class="s2">&quot;true&quot;</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="BlueIris.enable_camera"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.enable_camera">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">enable_camera</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Send camconfig command to enable camera.</span>
+
+<span class="sd">        :param bool enabled: True to enable the camera, False to disable. Defaults to True.</span>
+<span class="sd">        :param str camera: The camera shortcode for the camera to send this command to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_camera</span><span class="p">(</span><span class="n">camera</span><span class="p">):</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;camconfig&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;camera&quot;</span><span class="p">:</span> <span class="n">camera</span><span class="p">,</span> <span class="s2">&quot;enable&quot;</span><span class="p">:</span> <span class="n">enabled</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="BlueIris.unpause_camera"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.unpause_camera">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">unpause_camera</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Send camconfig command to pause camera.</span>
+
+<span class="sd">        :param str camera: The camera shortcode for the camera to send this command to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_camera</span><span class="p">(</span><span class="n">camera</span><span class="p">):</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;camconfig&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;camera&quot;</span><span class="p">:</span> <span class="n">camera</span><span class="p">,</span> <span class="s2">&quot;pause&quot;</span><span class="p">:</span> <span class="n">CAMConfig</span><span class="o">.</span><span class="n">PAUSE_CANCEL</span><span class="o">.</span><span class="n">value</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="BlueIris.pause_camera_indefinitely"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.pause_camera_indefinitely">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">pause_camera_indefinitely</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Send camconfig command to pause camera.</span>
+
+<span class="sd">        :param str camera: The camera shortcode for the camera to send this command to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_camera</span><span class="p">(</span><span class="n">camera</span><span class="p">):</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;camconfig&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;camera&quot;</span><span class="p">:</span> <span class="n">camera</span><span class="p">,</span> <span class="s2">&quot;pause&quot;</span><span class="p">:</span> <span class="n">CAMConfig</span><span class="o">.</span><span class="n">PAUSE_INDEFINITELY</span><span class="o">.</span><span class="n">value</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="BlueIris.pause_camera_add30seconds"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.pause_camera_add30seconds">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">pause_camera_add30seconds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Send camconfig command to pause camera.</span>
+
+<span class="sd">        :param str camera: The camera shortcode for the camera to send this command to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_camera</span><span class="p">(</span><span class="n">camera</span><span class="p">):</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;camconfig&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;camera&quot;</span><span class="p">:</span> <span class="n">camera</span><span class="p">,</span> <span class="s2">&quot;pause&quot;</span><span class="p">:</span> <span class="n">CAMConfig</span><span class="o">.</span><span class="n">PAUSE_ADD_30_SEC</span><span class="o">.</span><span class="n">value</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="BlueIris.pause_camera_add1minute"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.pause_camera_add1minute">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">pause_camera_add1minute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Send camconfig command to pause camera.</span>
+
+<span class="sd">        :param str camera: The camera shortcode for the camera to send this command to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_camera</span><span class="p">(</span><span class="n">camera</span><span class="p">):</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;camconfig&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;camera&quot;</span><span class="p">:</span> <span class="n">camera</span><span class="p">,</span> <span class="s2">&quot;pause&quot;</span><span class="p">:</span> <span class="n">CAMConfig</span><span class="o">.</span><span class="n">PAUSE_ADD_1_MIN</span><span class="o">.</span><span class="n">value</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="BlueIris.pause_camera_add1hour"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.pause_camera_add1hour">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">pause_camera_add1hour</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Send camconfig command to pause camera.</span>
+
+<span class="sd">        :param str camera: The camera shortcode for the camera to send this command to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_camera</span><span class="p">(</span><span class="n">camera</span><span class="p">):</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;camconfig&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;camera&quot;</span><span class="p">:</span> <span class="n">camera</span><span class="p">,</span> <span class="s2">&quot;pause&quot;</span><span class="p">:</span> <span class="n">CAMConfig</span><span class="o">.</span><span class="n">PAUSE_ADD_1_HOUR</span><span class="o">.</span><span class="n">value</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="BlueIris.pause_camera"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.pause_camera">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">pause_camera</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="p">,</span> <span class="n">seconds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send camconfig command to pause camera for seconds (rounded down to nearest 30 seconds).</span>
+<span class="sd">        </span>
+<span class="sd">        :param str camera: The camera shortcode for the camera to send this command to.</span>
+<span class="sd">        :param int seconds: The number of seconds to pause the camera (will get rounded down to nearest 30 seconds).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">seconds</span> <span class="o">&lt;</span> <span class="mi">30</span><span class="p">:</span>
+            <span class="n">seconds</span> <span class="o">=</span> <span class="mi">30</span>
+        <span class="n">num_1hour_pauses</span> <span class="o">=</span> <span class="n">floor</span><span class="p">(</span><span class="n">seconds</span> <span class="o">/</span> <span class="mi">3600</span><span class="p">)</span>
+        <span class="n">num_1minute_pauses</span> <span class="o">=</span> <span class="n">floor</span><span class="p">(</span><span class="n">seconds</span> <span class="o">/</span> <span class="mi">60</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="mi">60</span> <span class="o">*</span> <span class="n">num_1hour_pauses</span><span class="p">)</span>
+        <span class="n">num_30second_pauses</span> <span class="o">=</span> <span class="n">floor</span><span class="p">(</span><span class="n">seconds</span> <span class="o">/</span> <span class="mi">30</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">num_1minute_pauses</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="mi">120</span> <span class="o">*</span> <span class="n">num_1hour_pauses</span><span class="p">)</span>
+        <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_camera</span><span class="p">(</span><span class="n">camera</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_1hour_pauses</span><span class="p">):</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;camconfig&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;camera&quot;</span><span class="p">:</span> <span class="n">camera</span><span class="p">,</span> <span class="s2">&quot;pause&quot;</span><span class="p">:</span> <span class="n">CAMConfig</span><span class="o">.</span><span class="n">PAUSE_ADD_1_HOUR</span><span class="o">.</span><span class="n">value</span><span class="p">})</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_1minute_pauses</span><span class="p">):</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;camconfig&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;camera&quot;</span><span class="p">:</span> <span class="n">camera</span><span class="p">,</span> <span class="s2">&quot;pause&quot;</span><span class="p">:</span> <span class="n">CAMConfig</span><span class="o">.</span><span class="n">PAUSE_ADD_1_MIN</span><span class="o">.</span><span class="n">value</span><span class="p">})</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_30second_pauses</span><span class="p">):</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;camconfig&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;camera&quot;</span><span class="p">:</span> <span class="n">camera</span><span class="p">,</span> <span class="s2">&quot;pause&quot;</span><span class="p">:</span> <span class="n">CAMConfig</span><span class="o">.</span><span class="n">PAUSE_ADD_30_SEC</span><span class="o">.</span><span class="n">value</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="BlueIris.set_camera_motion"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.set_camera_motion">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">set_camera_motion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="p">,</span> <span class="n">motion_enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send camconfig command to pause camera.</span>
+
+<span class="sd">        :param str camera: The camera shortcode for the camera to send this command to.</span>
+<span class="sd">        :param bool motion_enabled: This is True to enable motion detection, False to disable. If neither is specified,</span>
+<span class="sd">            this will enable motion detection.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_camera</span><span class="p">(</span><span class="n">camera</span><span class="p">):</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;camconfig&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;camera&quot;</span><span class="p">:</span> <span class="n">camera</span><span class="p">,</span> <span class="s2">&quot;motion&quot;</span><span class="p">:</span> <span class="n">motion_enabled</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="BlueIris.set_camera_schedule"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.set_camera_schedule">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">set_camera_schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="p">,</span> <span class="n">camera_schedule_enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send camconfig command to enable or disable the caerma&#39;s custom schedule.</span>
+<span class="sd">        </span>
+<span class="sd">        camera - shortcode for the camera to send the command to</span>
+<span class="sd">        camera_schedule_enabled - True to enable, False to disable (default True)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_camera</span><span class="p">(</span><span class="n">camera</span><span class="p">):</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;camconfig&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;camera&quot;</span><span class="p">:</span> <span class="n">camera</span><span class="p">,</span> <span class="s2">&quot;schedule&quot;</span><span class="p">:</span> <span class="n">camera_schedule_enabled</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="BlueIris.set_camera_ptzcycle"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.set_camera_ptzcycle">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">set_camera_ptzcycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="p">,</span> <span class="n">preset_cycle_enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send camconfig command to enable or disable the preset cycle feature.</span>
+<span class="sd">        </span>
+<span class="sd">        :param str camera: The camera shortcode for the camera to send this command to.</span>
+<span class="sd">        :param bool preset_cycle_enabled: True to enable, False to disable (default True)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_camera</span><span class="p">(</span><span class="n">camera</span><span class="p">):</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;camconfig&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;camera&quot;</span><span class="p">:</span> <span class="n">camera</span><span class="p">,</span> <span class="s2">&quot;ptzcycle&quot;</span><span class="p">:</span> <span class="n">preset_cycle_enabled</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="BlueIris.set_camera_ptzevent_schedule"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.set_camera_ptzevent_schedule">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">set_camera_ptzevent_schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="p">,</span> <span class="n">ptz_event_schedule_enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send camconfig command to enable or disable the PTZ event schedule.</span>
+<span class="sd">        </span>
+<span class="sd">        :param str camera: The camera shortcode for the camera to send this command to.</span>
+<span class="sd">        :param bool ptz_event_schedule_enabled: True to enable, False to disable (default True)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_camera</span><span class="p">(</span><span class="n">camera</span><span class="p">):</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;camconfig&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;camera&quot;</span><span class="p">:</span> <span class="n">camera</span><span class="p">,</span> <span class="s2">&quot;ptzevents&quot;</span><span class="p">:</span> <span class="n">ptz_event_schedule_enabled</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="BlueIris.send_ptz_command"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.send_ptz_command">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">send_ptz_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">PTZCommand</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Operate a camera&#39;s PTZ functionality.</span>
+<span class="sd">        </span>
+<span class="sd">        :param str camera: The camera shortcode for the camera to send this command to.</span>
+<span class="sd">        :param PTZCommand command: a valid PTZCommand (use the enum)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_camera</span><span class="p">(</span><span class="n">camera</span><span class="p">):</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;ptz&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;camera&quot;</span><span class="p">:</span> <span class="n">camera</span><span class="p">,</span> <span class="s2">&quot;button&quot;</span><span class="p">:</span> <span class="n">command</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;updown&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="BlueIris.set_status_signal"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.set_status_signal">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">set_status_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signal</span><span class="p">:</span> <span class="n">Signal</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send command to set the Blue Iris server signal.</span>
+<span class="sd">        </span>
+<span class="sd">        :param Signal signal: The signal to set on Blue Iris server (use the enum)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;signal&quot;</span><span class="p">:</span> <span class="n">signal</span><span class="o">.</span><span class="n">value</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="BlueIris.set_status_profile"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.set_status_profile">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">set_status_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send command to set the current profile using the index of the profile.</span>
+<span class="sd">        </span>
+<span class="sd">        :param int profile_index: index of the profile to set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;profile&quot;</span><span class="p">:</span> <span class="n">profile_index</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="BlueIris.set_status_profile_by_name"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.set_status_profile_by_name">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">set_status_profile_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send command to set the current profile using the name of the profile.</span>
+<span class="sd">        </span>
+<span class="sd">        :param str profile_name: name of the profile you want to set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">profile_ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;profiles&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">profile_name</span><span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_status_profile</span><span class="p">(</span><span class="n">profile_ind</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BlueIris.set_sysconfig_archive"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.set_sysconfig_archive">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">set_sysconfig_archive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">archive_enabled</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send command to enable or disable web archiving.</span>
+<span class="sd">        </span>
+<span class="sd">        :param bool archive_enabled: True to enable web archiving, False to disable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;iam_admin&quot;</span><span class="p">]:</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;sysconfig&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;archive&quot;</span><span class="p">:</span> <span class="n">archive_enabled</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="BlueIris.set_sysconfig_schedule"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.set_sysconfig_schedule">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">set_sysconfig_schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">global_schedule_enabled</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send command to enable or disable the global schedule.</span>
+<span class="sd">        </span>
+<span class="sd">        :param bool global_schedule_enabled: True to enable the global schedule, False to disable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;iam_admin&quot;</span><span class="p">]:</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;sysconfig&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;schedule&quot;</span><span class="p">:</span> <span class="n">global_schedule_enabled</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="BlueIris.trigger_camera_motion"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.trigger_camera_motion">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">trigger_camera_motion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send trigger command to specific camera.</span>
+<span class="sd">        </span>
+<span class="sd">        :param str camera: The camera shortcode for the camera to send this command to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span><span class="p">[</span><span class="s2">&quot;iam_admin&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Unable to trigger cameras without admin permissions&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_camera</span><span class="p">(</span><span class="n">camera</span><span class="p">):</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;trigger&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;camera&quot;</span><span class="p">:</span> <span class="n">camera</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="BlueIris.get_camera_details"><a class="viewcode-back" href="../../pyblueiris.html#pyblueiris.blueiris.BlueIris.get_camera_details">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_camera_details</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera_shortname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the camera details for requested camera. If last update was UPDATE_THRESHOLD seconds ago, refresh.</span>
+
+<span class="sd">        :param str camera_shortname: The camera shortcode for the camera to send this command to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camera_details</span><span class="p">[</span><span class="n">LAST_UPDATE_KEY</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">STALE_THRESHOLD</span><span class="p">:</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_camlist</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camera_details</span><span class="p">[</span><span class="n">camera_shortname</span><span class="p">]</span></div></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2019, Nicholas Westerhausen.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
