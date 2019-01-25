@@ -1,22 +1,38 @@
 from enum import Enum
 
 
-class Signal(Enum):
-    RED = 0
-    YELLOW = 2
-    GREEN = 1
+def has_value(enum: Enum, value):
+    """Return True if `value` is a valid Signal.
 
-    @classmethod
-    def has_value(cls, value):
-        if isinstance(value, str):
-            # We were provided a string, let's check it
-            return value in cls.__members__
-        else:
-            # Assume we were given an int corresponding to the value assigned in this class
-            return any(value == item.value for item in cls)
+    You can check either the string (GREEN, RED..) or the value (0, 1..).
+
+    :param Enum enum: The enumeration to check for `value` in.
+    :param value: The enum string key or its int value.
+    :return: Return true if the value is within this enum, False if it isn't.
+    """
+    if isinstance(value, str):
+        # We were provided a string, let's check it
+        return value in enum.__members__
+    else:
+        # Assume we were given an int corresponding to the value assigned in this class
+        # noinspection PyTypeChecker
+        return any(value == item.value for item in enum)
+
+
+class Signal(Enum):
+    """Enumaration of the possible values of the stoplight signal property."""
+
+    RED = 0
+    """Red stoplight signal."""
+    YELLOW = 2
+    """Yellow stoplight signal."""
+    GREEN = 1
+    """Green stoplight signal."""
 
 
 class PTZCommand(Enum):
+    """Enumaration of the possible values for sending PTZ commands."""
+
     PAN_LEFT = 0
     PAN_RIGHT = 1
     TILT_UP = 2
@@ -73,31 +89,15 @@ class PTZCommand(Enum):
     PRESET_19 = 119
     PRESET_20 = 120
 
-    @classmethod
-    def has_value(cls, value):
-        if isinstance(value, str):
-            # We were provided a string, let's check it
-            return value in cls.__members__
-        else:
-            # Assume we were given an int corresponding to the value assigned in this class
-            return any(value == item.value for item in cls)
-
 
 class CAMConfig(Enum):
+    """Enumaration of the possible values used when changing CAMConfig."""
+
     PAUSE_INDEFINITELY = -1
     PAUSE_CANCEL = 0
     PAUSE_ADD_30_SEC = 1
     PAUSE_ADD_1_MIN = 2
     PAUSE_ADD_1_HOUR = 3
-
-    @classmethod
-    def has_value(cls, value):
-        if isinstance(value, str):
-            # We were provided a string, let's check it
-            return value in cls.__members__
-        else:
-            # Assume we were given an int corresponding to the value assigned in this class
-            return any(value == item.value for item in cls)
 
 
 LOG_SEVERITY = {
