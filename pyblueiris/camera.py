@@ -51,14 +51,14 @@ DEFAULT_NUM_NORECORDING = 0
 
 
 class BlueIrisCamera:
-    """Class which represents a Camera on a Blue Iris server."""
+    """Class which represents a Camera on a Blue Iris server.
+
+    :param BlueIris bi: The Blue Iris server this camera belongs to.
+    :param str camera_shortname: The shortname for this camera.
+    """
 
     def __init__(self, bi, camera_shortname: str):
-        """Initialize an object which represents a Blue Iris camera.
-
-        :param BlueIris bi: The Blue Iris server this camera belongs to.
-        :param str camera_shortname: The shortname for this camera.
-        """
+        """Initialize an object to represent a camera."""
         self._short_name = camera_shortname
         self.bi = bi
         self._mjpeg_url = "{}/mjpg/@Index".format(bi.base_url)

@@ -46,23 +46,23 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class BlueIris:
-    """Class which represents a Blue Iris server."""
+    """Class which represents a Blue Iris server.
+
+    :param ClientSession aiosession: AIOHTTP Client Session to run the commands through (required)
+    :param str user: Username used to authenticate to the Blue Iris server.
+    :param str password: Password used to authenticate to the Blue Iris server.
+    :param str protocol: Protocol used to communicate with the Blue Iris server. This should be either `http` or
+        `https`.
+    :param str host: The IP address or FQDN used to communicate with the Blue Iris server.
+    :param int port: The port used to communicate with the Blue Iris server. This defauls to match `protocol` --
+        80 for `http` and 443 for `https`.
+    :param bool debug: Should we print extra debug messages? True if yes, False if no; defaults to False.
+    :param Logger logger: The Logger to log messages to. Specify your own if you want to control where the
+        log messages go. By default, uses the namespace `__name__` for logging.
+    """
 
     def __init__(self, aiosession: ClientSession, user, password, protocol, host, port="", debug=False, logger=_LOGGER):
-        """Initialize a representation of a Blue Iris server which can be interacted with.
-
-        :param ClientSession aiosession: AIOHTTP Client Session to run the commands through (required)
-        :param str user: Username used to authenticate to the Blue Iris server.
-        :param str password: Password used to authenticate to the Blue Iris server.
-        :param str protocol: Protocol used to communicate with the Blue Iris server. This should be either `http` or
-            `https`.
-        :param str host: The IP address or FQDN used to communicate with the Blue Iris server.
-        :param int port: The port used to communicate with the Blue Iris server. This defauls to match `protocol` --
-            80 for `http` and 443 for `https`.
-        :param bool debug: Should we print extra debug messages? True if yes, False if no; defaults to False.
-        :param Logger logger: The Logger to log messages to. Specify your own if you want to control where the
-            log messages go. By default, uses the namespace `__name__` for logging.
-        """
+        """Initialize a representation of a Blue Iris server which can be interacted with."""
         self._attributes = dict()
         self._cameras = dict()
         self._camera_details = dict()

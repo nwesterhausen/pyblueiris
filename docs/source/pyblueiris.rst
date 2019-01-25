@@ -12,8 +12,6 @@ pyblueiris.blueiris module
     :undoc-members:
     :show-inheritance:
 
-    .. automethod:: pyblueiris.blueiris.BlueIris.__init__
-
 pyblueiris.camera module
 ------------------------
 

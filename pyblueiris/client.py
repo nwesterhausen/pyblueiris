@@ -9,18 +9,18 @@ UNKNOWN_HASH = -1
 
 
 class BlueIrisClient:
-    """Class which facilitates communication between the BlueIris object and the Blue Iris server."""
+    """Class which facilitates communication between the BlueIris object and the Blue Iris server.
+
+    :param ClientSession session: ClientSession to use for communication with the Blue Iris server.
+    :param str endpointurl: Full URL used to communicate with the Blue Iris server. This includes the protocol
+        (either http or https) and the '/json' path. If you use a non-standard port (i.e. something other than
+        80 for http and 443 for https), it needs to be specified after the host. `http://192.168.1.15:81/json`
+    :param bool debug: True to have more verbose logging, defaults to False.
+    :param Logger logger: Logger to send log messages to.
+    """
 
     def __init__(self, session: ClientSession, endpointurl: str, debug: bool, logger: logging.Logger):
-        """Initialize the communication client.
-
-        :param ClientSession session: ClientSession to use for communication with the Blue Iris server.
-        :param str endpointurl: Full URL used to communicate with the Blue Iris server. This includes the protocol
-            (either http or https) and the '/json' path. If you use a non-standard port (i.e. something other than
-            80 for http and 443 for https), it needs to be specified after the host. `http://192.168.1.15:81/json`
-        :param bool debug: True to have more verbose logging, defaults to False.
-        :param Logger logger: Logger to send log messages to.
-        """
+        """Initialize a client object."""
         self.async_websession = session
         self.url = endpointurl
         self.blueiris_session = UNKNOWN_HASH
@@ -29,9 +29,11 @@ class BlueIrisClient:
         self.logger = logger
 
     async def login(self, username, password):
-        """
-        Send hashed username/password to validate session
-        Returns system name and dictionary of profiles OR nothing
+        """Authenticate to the Blue Iris server.
+
+        :param str username: Username used to authenticate to the Blue Iris server.
+        :param str password: Password used to authenitcate to the Blue Iris server.
+        :return dict(): Return dictionary of server properties or empty dictionary on failure.
         """
         async with self.async_websession.post(self.url, data=json.dumps({"cmd": "login"})) as r:
             respjson = await r.json()
