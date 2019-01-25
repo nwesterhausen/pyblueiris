@@ -1,4 +1,4 @@
-"""Represents a Blue Iris Camera"""
+"""Represent a Camera on a Blue Iris sever."""
 import time
 
 
@@ -51,8 +51,14 @@ DEFAULT_NUM_NORECORDING = 0
 
 
 class BlueIrisCamera:
+    """Class which represents a Camera on a Blue Iris server."""
 
     def __init__(self, bi, camera_shortname: str):
+        """Initialize an object which represents a Blue Iris camera.
+
+        :param BlueIris bi: The Blue Iris server this camera belongs to.
+        :param str camera_shortname: The shortname for this camera.
+        """
         self._short_name = camera_shortname
         self.bi = bi
         self._mjpeg_url = "{}/mjpg/@Index".format(bi.base_url)
@@ -81,114 +87,151 @@ class BlueIrisCamera:
 
     @property
     def display_name(self):
+        """:return str: Return the camera's name."""
         return self._display_name
 
     @property
     def short_name(self):
+        """:return str: Return the camera shortcode for the camera."""
         return self._short_name
 
     @property
     def fps(self):
+        """:return int: Return the FPS of the camera."""
         return self._fps
 
     @property
     def color(self):
+        """:return: Return color of camera."""
         return self._color
 
     @property
     def num_clips(self):
+        """:return int: Return the number of clips the camera has recorded."""
         return self._num_clips
 
     @property
     def is_alerting(self):
+        """:return bool: Return True if the camera is alerting."""
         return self._is_alerting
 
     @property
     def is_enabled(self):
+        """:return bool: Return True if the camera is enabled in Blue Iris."""
         return self._is_enabled
 
     @property
     def is_online(self):
+        """:return bool: Return True if the camera is online."""
         return self._is_online
 
     @property
     def is_motion(self):
+        """:return bool: Return True if the camera detects motion."""
         return self._is_motion
 
     @property
     def is_nosignal(self):
+        """:return bool: Return True if the camera is in 'no signal' state."""
         return self._is_nosignal
 
     @property
     def is_paused(self):
+        """:return bool: Return True if the camera is paused."""
         return self._is_paused
 
     @property
     def is_triggered(self):
+        """:return bool: Return True if the camera is triggered."""
         return self._is_triggered
 
     @property
     def is_recording(self):
+        """:return bool: Return True if the camera is recording."""
         return self._is_recording
 
     @property
     def is_yellow(self):
+        """:return bool: Return True if the camera is yellow in Blue Iris."""
         return self._is_yellow
 
     @property
     def profile(self):
+        """:return int: Return the index of the profile active on the camera."""
         return self._profile
 
     @property
     def ptz_supported(self):
+        """:return bool: Return True if the camera has PTZ support."""
         return self._ptz_supported
 
     @property
     def audio_supported(self):
+        """:return bool: Return True if the camera has audio support."""
         return self._audio_supported
 
     @property
     def width(self):
+        """:return int: Return the width of the camera image."""
         return self._width
 
     @property
     def height(self):
+        """:return int: Return the height of the camera image."""
         return self._height
 
     @property
     def num_triggers(self):
+        """:return int: Return the number of 'trigger' events."""
         return self._num_triggers
 
     @property
     def num_nosignal(self):
+        """:return int: Return the number of 'no signal' events."""
         return self._num_nosignal
 
     @property
     def num_norecording(self):
+        """:return int: Return the number of 'no recording' events."""
         return self._num_norecording
 
     @property
     def mjpeg_url(self):
+        """:return str: Return the URL to the mjpeg stream for this camera."""
         return self._mjpeg_url
 
     @property
     def last_update_time(self):
+        """:return long: Return the EPOCH of when this object last updated its camera information."""
         return self._last_update_time
 
     async def update_camconfig(self):
+        """Update this object's details on the camera it represents."""
         updated_data = await self.bi.get_camera_details(self._short_name)
         self.update_properties(updated_data)
 
     async def enable(self):
+        """Enable this camera."""
         await self.bi.enable_camera(self._short_name, True)
 
     async def disable(self):
+        """Disable this camera."""
         await self.bi.enable_camera(self._short_name, False)
 
     async def detect_motion(self, enabled=True):
+        """Set this camera to detect motion or not.
+
+        :param bool enabled: True to enable motion detection, False to disable. Defaults to True.
+        """
         await self.bi.set_camera_motion(self._short_name, enabled)
 
     def update_properties(self, camlist_data: {}):
+        """Update this objects properties based on a dictionary of camera data.
+
+        The camera data dictionary should come from the `camlist` command sent to the Blue Iris server.
+
+        :param dict() camlist_data: Dictionary of property values for this camera.
+        """
         self._last_update_time = time.time()
         self._display_name = camlist_data.get(CONF_DISPLAY_NAME, DEFAULT_DISPLAY_NAME)
         self._mjpeg_url = "{}/mjpg/{}".format(self.bi.base_url, self._short_name)
