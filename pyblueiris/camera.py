@@ -1,7 +1,6 @@
 """Represent a Camera on a Blue Iris sever."""
 import time
 
-
 # Define lookup values for Camlist Data
 CONF_DISPLAY_NAME = 'optionDisplay'
 CONF_SHORT_NAME = 'optionValue'
@@ -233,25 +232,37 @@ class BlueIrisCamera:
         :param dict() camlist_data: Dictionary of property values for this camera.
         """
         self._last_update_time = time.time()
-        self._display_name = camlist_data.get(CONF_DISPLAY_NAME, DEFAULT_DISPLAY_NAME)
-        self._mjpeg_url = "{}/mjpg/{}".format(self.bi.base_url, self._short_name)
+        self._display_name = camlist_data.get(CONF_DISPLAY_NAME,
+                                              DEFAULT_DISPLAY_NAME)
+        self._mjpeg_url = "{}/mjpg/{}".format(self.bi.base_url,
+                                              self._short_name)
         self._fps = camlist_data.get(CONF_FPS, DEFAULT_FPS)
         self._color = camlist_data.get(CONF_HEX_COLOR, DEFAULT_HEX_COLOR)
         self._num_clips = camlist_data.get(CONF_NUM_CLIPS, DEFAULT_NUM_CLIPS)
-        self._is_alerting = camlist_data.get(CONF_IS_ALERTING, DEFAULT_IS_ALERTING)
-        self._is_enabled = camlist_data.get(CONF_IS_ENABLED, DEFAULT_IS_ENABLED)
+        self._is_alerting = camlist_data.get(CONF_IS_ALERTING,
+                                             DEFAULT_IS_ALERTING)
+        self._is_enabled = camlist_data.get(CONF_IS_ENABLED,
+                                            DEFAULT_IS_ENABLED)
         self._is_online = camlist_data.get(CONF_IS_ONLINE, DEFAULT_IS_ONLINE)
         self._is_motion = camlist_data.get(CONF_IS_MOTION, DEFAULT_IS_MOTION)
-        self._is_nosignal = camlist_data.get(CONF_IS_NOSIGNAL, DEFAULT_IS_NOSIGNAL)
+        self._is_nosignal = camlist_data.get(CONF_IS_NOSIGNAL,
+                                             DEFAULT_IS_NOSIGNAL)
         self._is_paused = camlist_data.get(CONF_IS_PAUSED, DEFAULT_IS_PAUSED)
-        self._is_triggered = camlist_data.get(CONF_IS_TRIGGERED, DEFAULT_IS_TRIGGERED)
-        self._is_recording = camlist_data.get(CONF_IS_RECORDING, DEFAULT_IS_RECORDING)
+        self._is_triggered = camlist_data.get(CONF_IS_TRIGGERED,
+                                              DEFAULT_IS_TRIGGERED)
+        self._is_recording = camlist_data.get(CONF_IS_RECORDING,
+                                              DEFAULT_IS_RECORDING)
         self._is_yellow = camlist_data.get(CONF_IS_YELLOW, DEFAULT_IS_YELLOW)
         self._profile = camlist_data.get(CONF_PROFILE, DEFAULT_PROFILE)
-        self._ptz_supported = camlist_data.get(CONF_PTZ_SUPPORTED, DEFAULT_PTZ_SUPPORTED)
-        self._audio_supported = camlist_data.get(CONF_AUDIO_SUPPORTED, DEFAULT_AUDIO_SUPPORTED)
+        self._ptz_supported = camlist_data.get(CONF_PTZ_SUPPORTED,
+                                               DEFAULT_PTZ_SUPPORTED)
+        self._audio_supported = camlist_data.get(CONF_AUDIO_SUPPORTED,
+                                                 DEFAULT_AUDIO_SUPPORTED)
         self._width = camlist_data.get(CONF_WIDTH, DEFAULT_WIDTH)
         self._height = camlist_data.get(CONF_HEIGHT, DEFAULT_HEIGHT)
-        self._num_triggers = camlist_data.get(CONF_NUM_TRIGGERS, DEFAULT_NUM_TRIGGERS)
-        self._num_nosignal = camlist_data.get(CONF_NUM_NOSIGNAL, DEFAULT_NUM_NOSIGNAL)
-        self._num_norecording = camlist_data.get(CONF_NUM_NORECORDING, DEFAULT_NUM_NORECORDING)
+        self._num_triggers = camlist_data.get(CONF_NUM_TRIGGERS,
+                                              DEFAULT_NUM_TRIGGERS)
+        self._num_nosignal = camlist_data.get(CONF_NUM_NOSIGNAL,
+                                              DEFAULT_NUM_NOSIGNAL)
+        self._num_norecording = camlist_data.get(CONF_NUM_NORECORDING,
+                                                 DEFAULT_NUM_NORECORDING)

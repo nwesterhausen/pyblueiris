@@ -61,7 +61,15 @@ class BlueIris:
         log messages go. By default, uses the namespace `__name__` for logging.
     """
 
-    def __init__(self, aiosession: ClientSession, user, password, protocol, host, port="", debug=False, logger=_LOGGER):
+    def __init__(self,
+                 aiosession: ClientSession,
+                 user,
+                 password,
+                 protocol,
+                 host,
+                 port="",
+                 debug=False,
+                 logger=_LOGGER):
         """Initialize a representation of a Blue Iris server which can be interacted with."""
         self._attributes = dict()
         self._cameras = dict()
@@ -75,7 +83,8 @@ class BlueIris:
             host = "{}:{}".format(host, port)
         if protocol not in ['http', 'https']:
             self.logger.warning(
-                "Invalid protocol passed {}. (Expected 'http' or 'https'. Using 'http')".format(protocol))
+                "Invalid protocol passed {}. (Expected 'http' or 'https'. Using 'http')"
+                .format(protocol))
             protocol = 'http'
         self._base_url = "{}://{}".format(protocol, host)
         self.url = "{}/json".format(self._base_url)
@@ -84,7 +93,8 @@ class BlueIris:
         if self.debug:
             self.logger.info("Attempting connection to {}".format(self.url))
 
-        self.client = BlueIrisClient(aiosession, self.url, debug=self.debug, logger=self.logger)
+        self.client = BlueIrisClient(
+            aiosession, self.url, debug=self.debug, logger=self.logger)
 
     @property
     def attributes(self):
@@ -115,30 +125,49 @@ class BlueIris:
         """Log into the Blue Iris server and sets attributes values with server information."""
         full_reply = await self.client.login(self.username, self.password)
         if "data" not in full_reply:
-            self.logger.error("Did not get a good result from login command. Failing login.")
+            self.logger.error(
+                "Did not get a good result from login command. Failing login.")
             self.logger.debug(full_reply)
             return False
         # Extract the server information from the login reply
         session_info = full_reply["data"]
-        self._attributes["name"] = session_info.get(SESSION_NAME, UNKNOWN_STRING)
-        self._attributes["profiles"] = session_info.get(SESSION_PROFILES, UNKNOWN_LIST)
-        self._attributes["iam_admin"] = session_info.get(SESSION_IAM_ADMIN, False)
-        self._attributes["ptz_allowed"] = session_info.get(SESSION_PTZ_ALLOWED, False)
-        self._attributes["clips_allowed"] = session_info.get(SESSION_CLIPS_ALLOWED, False)
-        self._attributes["schedules"] = session_info.get(SESSION_SCHEDULES, UNKNOWN_LIST)
-        self._attributes["version"] = session_info.get(SESSION_VERSION, UNKNOWN_STRING)
-        self._attributes["audio_allowed"] = session_info.get(SESSION_AUDIO_ALLOWED, False)
-        self._attributes["dio_available"] = session_info.get(SESSION_DIO_AVAILABLE, False)
-        self._attributes["stream_timelimit"] = session_info.get(SESSION_STREAM_TIMELIMIT, False)
-        self._attributes["license"] = session_info.get(SESSION_LICENSE, UNKNOWN_STRING)
+        self._attributes["name"] = session_info.get(SESSION_NAME,
+                                                    UNKNOWN_STRING)
+        self._attributes["profiles"] = session_info.get(
+            SESSION_PROFILES, UNKNOWN_LIST)
+        self._attributes["iam_admin"] = session_info.get(
+            SESSION_IAM_ADMIN, False)
+        self._attributes["ptz_allowed"] = session_info.get(
+            SESSION_PTZ_ALLOWED, False)
+        self._attributes["clips_allowed"] = session_info.get(
+            SESSION_CLIPS_ALLOWED, False)
+        self._attributes["schedules"] = session_info.get(
+            SESSION_SCHEDULES, UNKNOWN_LIST)
+        self._attributes["version"] = session_info.get(SESSION_VERSION,
+                                                       UNKNOWN_STRING)
+        self._attributes["audio_allowed"] = session_info.get(
+            SESSION_AUDIO_ALLOWED, False)
+        self._attributes["dio_available"] = session_info.get(
+            SESSION_DIO_AVAILABLE, False)
+        self._attributes["stream_timelimit"] = session_info.get(
+            SESSION_STREAM_TIMELIMIT, False)
+        self._attributes["license"] = session_info.get(SESSION_LICENSE,
+                                                       UNKNOWN_STRING)
         self._attributes["support"] = session_info.get(SESSION_SUPPORT)
-        self._attributes["user"] = session_info.get(SESSION_USER, UNKNOWN_STRING)
-        self._attributes["longitude"] = session_info.get(SESSION_LONGITUDE, UNKNOWN_STRING)
-        self._attributes["latitude"] = session_info.get(SESSION_LATITUDE, UNKNOWN_STRING)
-        self._attributes["tzone"] = session_info.get(SESSION_TZONE, UNKNOWN_STRING)
-        self._attributes["streams"] = session_info.get(SESSION_STREAMS, UNKNOWN_LIST)
-        self._attributes["sounds"] = session_info.get(SESSION_SOUNDS, UNKNOWN_LIST)
-        self._attributes["www_sounds"] = session_info.get(SESSION_WWW_SOUNDS, UNKNOWN_LIST)
+        self._attributes["user"] = session_info.get(SESSION_USER,
+                                                    UNKNOWN_STRING)
+        self._attributes["longitude"] = session_info.get(
+            SESSION_LONGITUDE, UNKNOWN_STRING)
+        self._attributes["latitude"] = session_info.get(
+            SESSION_LATITUDE, UNKNOWN_STRING)
+        self._attributes["tzone"] = session_info.get(SESSION_TZONE,
+                                                     UNKNOWN_STRING)
+        self._attributes["streams"] = session_info.get(SESSION_STREAMS,
+                                                       UNKNOWN_LIST)
+        self._attributes["sounds"] = session_info.get(SESSION_SOUNDS,
+                                                      UNKNOWN_LIST)
+        self._attributes["www_sounds"] = session_info.get(
+            SESSION_WWW_SOUNDS, UNKNOWN_LIST)
         # Now we are logged in, let's make sure we know it
         self.am_logged_in = True
         if self.debug:
@@ -155,7 +184,8 @@ class BlueIris:
         if not self.am_logged_in:
             # If we aren't logged in for some reason, let's log in again
             if not await self.setup_session():
-                self.logger.error("Unable to login, not sending {}".format(command))
+                self.logger.error(
+                    "Unable to login, not sending {}".format(command))
                 return False
         # Send the command to the server
         result = await self.client.cmd(command, params)
@@ -164,7 +194,8 @@ class BlueIris:
             return result["data"]
         if result["result"] == "success":
             return True
-        self.logger.error("Got a fail result without data from {}({})".format(command, params))
+        self.logger.error("Got a fail result without data from {}({})".format(
+            command, params))
         return False
 
     async def update_status(self):
@@ -176,7 +207,8 @@ class BlueIris:
         if status["profile"] == -1:
             self._attributes["profile"] = "Undefined"
         else:
-            self._attributes["profile"] = self._attributes["profiles"][status["profile"]]
+            self._attributes["profile"] = self._attributes["profiles"][
+                status["profile"]]
 
     @property
     def cameras(self):
@@ -190,18 +222,21 @@ class BlueIris:
         """Update the camera config and camera list in attributes."""
         camlist = await self.send_command("camlist")
         self._attributes["cameras"] = dict()
-        self._attributes["camconfig"] = camlist  # Stores the full result in this key
+        self._attributes[
+            "camconfig"] = camlist  # Stores the full result in this key
         if camlist is None:
             camlist = dict()
         # For the 'cameras' value in attributes, we create a short dict that uses the
         # shortname for the key and the display name for the value. { CAM1: Camera 1 }
         for camconfig in camlist:
             shortcode = camconfig.get('optionValue')
-            self._attributes["cameras"][shortcode] = camconfig.get('optionDisplay')
+            self._attributes["cameras"][shortcode] = camconfig.get(
+                'optionDisplay')
             self._camera_details[shortcode] = camconfig
             if shortcode not in self._cameras and 'group' not in camconfig:
                 self._cameras[shortcode] = BlueIrisCamera(self, shortcode)
-                self.logger.info("Created BlueIrisCamera for {}".format(shortcode))
+                self.logger.info(
+                    "Created BlueIrisCamera for {}".format(shortcode))
             self._camera_details[LAST_UPDATE_KEY] = time.time()
 
     async def update_cliplist(self, camera="Index"):
@@ -247,7 +282,10 @@ class BlueIris:
                 if cam_shortname not in ['@Index', 'Index']:
                     self._attributes["alertlist"][cam_shortname] = []
 
-        alertlist = await self.send_command("alertlist", {"camera": camera, "reset": "false"})
+        alertlist = await self.send_command("alertlist", {
+            "camera": camera,
+            "reset": "false"
+        })
         if alertlist is not dict:
             # We have to have a dict() for the next step
             alertlist = dict()
@@ -262,7 +300,9 @@ class BlueIris:
     async def update_sysconfig(self):
         """Update the system configuration status from Blue Iris."""
         if not self._attributes["iam_admin"]:
-            self.logger.error("The sysconfig command requires admin access. Current user is NOT admin")
+            self.logger.error(
+                "The sysconfig command requires admin access. Current user is NOT admin"
+            )
         else:
             sysconfig = await self.send_command("sysconfig")
             self._attributes["sysconfig"] = sysconfig
@@ -287,8 +327,8 @@ class BlueIris:
             await self.update_camlist()
         if cam_shortcode not in self._attributes["cameras"]:
             self.logger.error(
-                "{}: invalid camera provided. Choose one of {}".format(cam_shortcode,
-                                                                       self._attributes["cameras"].keys()))
+                "{}: invalid camera provided. Choose one of {}".format(
+                    cam_shortcode, self._attributes["cameras"].keys()))
             return False
         return True
 
@@ -298,7 +338,10 @@ class BlueIris:
         :param str camera: The camera shortcode for the camera to send this command to.
         """
         if await self.is_valid_camera(camera):
-            await self.send_command("camconfig", {"camera": camera, "reset": "true"})
+            await self.send_command("camconfig", {
+                "camera": camera,
+                "reset": "true"
+            })
 
     async def enable_camera(self, camera, enabled=True):
         """Send camconfig command to enable camera.
@@ -307,7 +350,10 @@ class BlueIris:
         :param str camera: The camera shortcode for the camera to send this command to.
         """
         if await self.is_valid_camera(camera):
-            await self.send_command("camconfig", {"camera": camera, "enable": enabled})
+            await self.send_command("camconfig", {
+                "camera": camera,
+                "enable": enabled
+            })
 
     async def unpause_camera(self, camera):
         """Send camconfig command to pause camera.
@@ -315,7 +361,10 @@ class BlueIris:
         :param str camera: The camera shortcode for the camera to send this command to.
         """
         if await self.is_valid_camera(camera):
-            await self.send_command("camconfig", {"camera": camera, "pause": CAMConfig.PAUSE_CANCEL.value})
+            await self.send_command("camconfig", {
+                "camera": camera,
+                "pause": CAMConfig.PAUSE_CANCEL.value
+            })
 
     async def pause_camera_indefinitely(self, camera):
         """Send camconfig command to pause camera.
@@ -323,7 +372,10 @@ class BlueIris:
         :param str camera: The camera shortcode for the camera to send this command to.
         """
         if await self.is_valid_camera(camera):
-            await self.send_command("camconfig", {"camera": camera, "pause": CAMConfig.PAUSE_INDEFINITELY.value})
+            await self.send_command("camconfig", {
+                "camera": camera,
+                "pause": CAMConfig.PAUSE_INDEFINITELY.value
+            })
 
     async def pause_camera_add30seconds(self, camera):
         """Send camconfig command to pause camera.
@@ -331,7 +383,10 @@ class BlueIris:
         :param str camera: The camera shortcode for the camera to send this command to.
         """
         if await self.is_valid_camera(camera):
-            await self.send_command("camconfig", {"camera": camera, "pause": CAMConfig.PAUSE_ADD_30_SEC.value})
+            await self.send_command("camconfig", {
+                "camera": camera,
+                "pause": CAMConfig.PAUSE_ADD_30_SEC.value
+            })
 
     async def pause_camera_add1minute(self, camera):
         """Send camconfig command to pause camera.
@@ -339,7 +394,10 @@ class BlueIris:
         :param str camera: The camera shortcode for the camera to send this command to.
         """
         if await self.is_valid_camera(camera):
-            await self.send_command("camconfig", {"camera": camera, "pause": CAMConfig.PAUSE_ADD_1_MIN.value})
+            await self.send_command("camconfig", {
+                "camera": camera,
+                "pause": CAMConfig.PAUSE_ADD_1_MIN.value
+            })
 
     async def pause_camera_add1hour(self, camera):
         """Send camconfig command to pause camera.
@@ -347,7 +405,10 @@ class BlueIris:
         :param str camera: The camera shortcode for the camera to send this command to.
         """
         if await self.is_valid_camera(camera):
-            await self.send_command("camconfig", {"camera": camera, "pause": CAMConfig.PAUSE_ADD_1_HOUR.value})
+            await self.send_command("camconfig", {
+                "camera": camera,
+                "pause": CAMConfig.PAUSE_ADD_1_HOUR.value
+            })
 
     async def pause_camera(self, camera, seconds):
         """
@@ -360,14 +421,27 @@ class BlueIris:
             seconds = 30
         num_1hour_pauses = floor(seconds / 3600)
         num_1minute_pauses = floor(seconds / 60) - (60 * num_1hour_pauses)
-        num_30second_pauses = floor(seconds / 30) - (2 * num_1minute_pauses) - (120 * num_1hour_pauses)
+        num_30second_pauses = floor(
+            seconds / 30) - (2 * num_1minute_pauses) - (120 * num_1hour_pauses)
         if await self.is_valid_camera(camera):
             for x in range(num_1hour_pauses):
-                await self.send_command("camconfig", {"camera": camera, "pause": CAMConfig.PAUSE_ADD_1_HOUR.value})
+                await self.send_command(
+                    "camconfig", {
+                        "camera": camera,
+                        "pause": CAMConfig.PAUSE_ADD_1_HOUR.value
+                    })
             for x in range(num_1minute_pauses):
-                await self.send_command("camconfig", {"camera": camera, "pause": CAMConfig.PAUSE_ADD_1_MIN.value})
+                await self.send_command(
+                    "camconfig", {
+                        "camera": camera,
+                        "pause": CAMConfig.PAUSE_ADD_1_MIN.value
+                    })
             for x in range(num_30second_pauses):
-                await self.send_command("camconfig", {"camera": camera, "pause": CAMConfig.PAUSE_ADD_30_SEC.value})
+                await self.send_command(
+                    "camconfig", {
+                        "camera": camera,
+                        "pause": CAMConfig.PAUSE_ADD_30_SEC.value
+                    })
 
     async def set_camera_motion(self, camera, motion_enabled=True):
         """
@@ -378,7 +452,10 @@ class BlueIris:
             this will enable motion detection.
         """
         if await self.is_valid_camera(camera):
-            await self.send_command("camconfig", {"camera": camera, "motion": motion_enabled})
+            await self.send_command("camconfig", {
+                "camera": camera,
+                "motion": motion_enabled
+            })
 
     async def set_camera_schedule(self, camera, camera_schedule_enabled=True):
         """
@@ -388,7 +465,10 @@ class BlueIris:
         camera_schedule_enabled - True to enable, False to disable (default True)
         """
         if await self.is_valid_camera(camera):
-            await self.send_command("camconfig", {"camera": camera, "schedule": camera_schedule_enabled})
+            await self.send_command("camconfig", {
+                "camera": camera,
+                "schedule": camera_schedule_enabled
+            })
 
     async def set_camera_ptzcycle(self, camera, preset_cycle_enabled=True):
         """
@@ -398,9 +478,14 @@ class BlueIris:
         :param bool preset_cycle_enabled: True to enable, False to disable (default True)
         """
         if await self.is_valid_camera(camera):
-            await self.send_command("camconfig", {"camera": camera, "ptzcycle": preset_cycle_enabled})
+            await self.send_command("camconfig", {
+                "camera": camera,
+                "ptzcycle": preset_cycle_enabled
+            })
 
-    async def set_camera_ptzevent_schedule(self, camera, ptz_event_schedule_enabled=True):
+    async def set_camera_ptzevent_schedule(self,
+                                           camera,
+                                           ptz_event_schedule_enabled=True):
         """
         Send camconfig command to enable or disable the PTZ event schedule.
         
@@ -408,7 +493,10 @@ class BlueIris:
         :param bool ptz_event_schedule_enabled: True to enable, False to disable (default True)
         """
         if await self.is_valid_camera(camera):
-            await self.send_command("camconfig", {"camera": camera, "ptzevents": ptz_event_schedule_enabled})
+            await self.send_command("camconfig", {
+                "camera": camera,
+                "ptzevents": ptz_event_schedule_enabled
+            })
 
     async def send_ptz_command(self, camera, command: PTZCommand):
         """
@@ -418,7 +506,11 @@ class BlueIris:
         :param PTZCommand command: a valid PTZCommand (use the enum)
         """
         if await self.is_valid_camera(camera):
-            await self.send_command("ptz", {"camera": camera, "button": command.value, "updown": 1})
+            await self.send_command("ptz", {
+                "camera": camera,
+                "button": command.value,
+                "updown": 1
+            })
 
     async def set_status_signal(self, signal: Signal):
         """
@@ -461,7 +553,8 @@ class BlueIris:
         :param bool global_schedule_enabled: True to enable the global schedule, False to disable
         """
         if self._attributes["iam_admin"]:
-            await self.send_command("sysconfig", {"schedule": global_schedule_enabled})
+            await self.send_command("sysconfig",
+                                    {"schedule": global_schedule_enabled})
 
     async def trigger_camera_motion(self, camera):
         """
@@ -470,7 +563,8 @@ class BlueIris:
         :param str camera: The camera shortcode for the camera to send this command to.
         """
         if not self._attributes["iam_admin"]:
-            self.logger.error("Unable to trigger cameras without admin permissions")
+            self.logger.error(
+                "Unable to trigger cameras without admin permissions")
             return False
         if await self.is_valid_camera(camera):
             await self.send_command("trigger", {"camera": camera})
@@ -481,6 +575,7 @@ class BlueIris:
 
         :param str camera_shortname: The camera shortcode for the camera to send this command to.
         """
-        if time.time() - self._camera_details[LAST_UPDATE_KEY] > STALE_THRESHOLD:
+        if time.time(
+        ) - self._camera_details[LAST_UPDATE_KEY] > STALE_THRESHOLD:
             await self.update_camlist()
         return self._camera_details[camera_shortname]

@@ -19,7 +19,8 @@ class BlueIrisClient:
     :param Logger logger: Logger to send log messages to.
     """
 
-    def __init__(self, session: ClientSession, endpointurl: str, debug: bool, logger: logging.Logger):
+    def __init__(self, session: ClientSession, endpointurl: str, debug: bool,
+                 logger: logging.Logger):
         """Initialize a client object."""
         self.async_websession = session
         self.url = endpointurl
@@ -35,10 +36,14 @@ class BlueIrisClient:
         :param str password: Password used to authenitcate to the Blue Iris server.
         :return dict(): Return dictionary of server properties or empty dictionary on failure.
         """
-        async with self.async_websession.post(self.url, data=json.dumps({"cmd": "login"})) as r:
+        async with self.async_websession.post(
+                self.url, data=json.dumps({
+                    "cmd": "login"
+                })) as r:
             respjson = await r.json()
             if self.debug:
-                self.logger.debug("Initial Login response: {}".format(respjson))
+                self.logger.debug(
+                    "Initial Login response: {}".format(respjson))
             self.blueiris_session = respjson["session"]
             self.generate_response(username, password)
             return await self.cmd("login")
@@ -55,10 +60,12 @@ class BlueIrisClient:
         :param str password: Password used to authenitcate to the Blue Iris server.
         """
         self.response = hashlib.md5(
-            "{}:{}:{}".format(username, self.blueiris_session, password).encode('utf-8')).hexdigest()
+            "{}:{}:{}".format(username, self.blueiris_session,
+                              password).encode('utf-8')).hexdigest()
         if self.debug:
             self.logger.debug("Generating a response hash from session.")
-            self.logger.debug("Session: {}, Response: {}".format(self.blueiris_session, self.response))
+            self.logger.debug("Session: {}, Response: {}".format(
+                self.blueiris_session, self.response))
 
     async def cmd(self, command, params=None):
         """Send a command to the Blue Iris server.
@@ -70,19 +77,25 @@ class BlueIrisClient:
         """
         if params is None:
             params = dict()
-        args = {"session": self.blueiris_session, "response": self.response, "cmd": command}
+        args = {
+            "session": self.blueiris_session,
+            "response": self.response,
+            "cmd": command
+        }
         args.update(params)
 
         if self.debug:
-            self.logger.info("Sending async command: {} {}".format(command, params))
+            self.logger.info("Sending async command: {} {}".format(
+                command, params))
             self.logger.debug("Full command JSON data: {}".format(args))
 
         try:
-            async with self.async_websession.post(self.url, data=json.dumps(args)) as resp:
+            async with self.async_websession.post(
+                    self.url, data=json.dumps(args)) as resp:
                 rjson = await resp.json()
                 if self.debug:
                     self.logger.debug("Full json response: {}".format(rjson))
                 return rjson
         except ClientError as err:
-            raise ClientError(
-                'Error requesting data from {}: {}'.format(self.url, err))
+            raise ClientError('Error requesting data from {}: {}'.format(
+                self.url, err))

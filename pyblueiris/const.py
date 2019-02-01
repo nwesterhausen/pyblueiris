@@ -100,8 +100,4 @@ class CAMConfig(Enum):
     PAUSE_ADD_1_HOUR = 3
 
 
-LOG_SEVERITY = {
-    0: "INFO",
-    1: "WARNING",
-    2: "ERROR"
-}
+LOG_SEVERITY = {0: "INFO", 1: "WARNING", 2: "ERROR"}
