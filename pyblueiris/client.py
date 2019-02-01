@@ -9,14 +9,19 @@ UNKNOWN_HASH = -1
 
 
 class BlueIrisClient:
-    """Class which facilitates communication between the BlueIris object and the Blue Iris server.
+    """Class which facilitates communication with the BlueIris server.
 
-    :param ClientSession session: ClientSession to use for communication with the Blue Iris server.
-    :param str endpointurl: Full URL used to communicate with the Blue Iris server. This includes the protocol
-        (either http or https) and the '/json' path. If you use a non-standard port (i.e. something other than
-        80 for http and 443 for https), it needs to be specified after the host. `http://192.168.1.15:81/json`
-    :param bool debug: True to have more verbose logging, defaults to False.
-    :param Logger logger: Logger to send log messages to.
+    Parameters:
+        session (aiohttp.ClientSession): Async ClientSession to use for 
+            communication with the Blue Iris server.
+        endpointurl (str): Full URL used to communicate with the Blue 
+            Iris server. This includes the protocol (either "http" or 
+            "https") and the '/json' path. If you use a non-standard port 
+            (i.e. something other than 80 for http and 443 for https), 
+            it needs to be specified after the host. (E.g 
+            `http://192.168.1.15:81/json`)
+        debug (bool): True to have more verbose logging, defaults to False.
+        logger (logging.Logger): Logger to send log messages to.
     """
 
     def __init__(self, session: ClientSession, endpointurl: str, debug: bool,
@@ -32,9 +37,13 @@ class BlueIrisClient:
     async def login(self, username, password):
         """Authenticate to the Blue Iris server.
 
-        :param str username: Username used to authenticate to the Blue Iris server.
-        :param str password: Password used to authenitcate to the Blue Iris server.
-        :return dict(): Return dictionary of server properties or empty dictionary on failure.
+        Parameters:
+            username (str): Username used to authenticate.
+            password (str): Password used to authenitcate.
+        
+        Returns:
+            dict: Returns dictionary of server properties or empty dictionary 
+            on failure.
         """
         async with self.async_websession.post(
                 self.url, data=json.dumps({
@@ -49,15 +58,18 @@ class BlueIrisClient:
             return await self.cmd("login")
 
     def generate_response(self, username, password):
-        """Generate the response needed to authenticate to the Blue Iris server.
+        """Generate the response needed to authenticate to Blue Iris.
 
-        When communicating with the Blue Iris JSON API, you must provide a valid response when sending commands. This
-        method updates the stored response used by this client.
+        When communicating with the Blue Iris JSON API, you must provide
+        a valid response when sending commands. This method updates the 
+        stored response used by this client.
 
-        :warning: This object must have a current username, password and session for this method to work correctly!
+        This object must have a current username, password and session 
+        for this method to work correctly!
 
-        :param str username: Username used to authenticate to the Blue Iris server.
-        :param str password: Password used to authenitcate to the Blue Iris server.
+        Parameters:
+            username (str): Username used to authenticate.
+            password (str): Password used to authenitcate.
         """
         self.response = hashlib.md5(
             "{}:{}:{}".format(username, self.blueiris_session,
@@ -70,10 +82,15 @@ class BlueIrisClient:
     async def cmd(self, command, params=None):
         """Send a command to the Blue Iris server.
 
-        :param str command: Command to send to the Blue Iris server.
-        :param dict() params:  Parameters for the command.
-        :return dict(): Return the 'data' portion of the JSON response. If there was no 'data' in the response, return
-            the entire response JSON.
+        Parameters:
+            command (str): Command to send to the Blue Iris server.
+
+        Other Parameters:
+            params (dict):  Parameters for the command. (Default: None)
+
+        Returns: 
+            dict: The 'data' portion of the JSON response. If there was no 
+            'data' in the response, return the entire response JSON.
         """
         if params is None:
             params = dict()

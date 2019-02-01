@@ -2,13 +2,16 @@ from enum import Enum
 
 
 def has_value(enum: Enum, value):
-    """Return True if `value` is a valid member of `enum`.
+    """:bool: Return True if `value` is a valid member of `enum`.
 
     You can check either the string (GREEN, RED..) or the value (0, 1..).
 
-    :param Enum enum: The enumeration to check for `value` in.
-    :param value: The enum string key or its int value.
-    :return: Return true if the value is within this enum, False if it isn't.
+    Parameters:
+        enum: The enumeration to check for `value` in.
+        value: The enum string key or its int value.
+
+    Returns: 
+        True if the value is within this enum, False if it isn't.
     """
     if isinstance(value, str):
         # We were provided a string, let's check it

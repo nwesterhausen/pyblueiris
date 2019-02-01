@@ -5,7 +5,7 @@
 # This file does only contain a selection of the most common options. For a
 # full list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
-import sphinx_bootstrap_theme
+#import sphinx_bootstrap_theme
 # -- Path setup --------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -26,7 +26,7 @@ author = 'Nicholas Westerhausen'
 # The short X.Y version
 version = ''
 # The full version, including alpha/beta/rc tags
-release = '0.2.8'
+release = '0.2.11'
 
 
 # -- General configuration ---------------------------------------------------
@@ -43,7 +43,8 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
-    'sphinx.ext.napoleon'
+    'sphinx.ext.intersphinx',
+    'sphinxcontrib.napoleon'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -76,8 +77,8 @@ pygments_style = None
 
 # -- Options for HTML output -------------------------------------------------
 
-html_theme = 'bootstrap'
-html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
+#html_theme = 'bootstrap'
+#html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
@@ -87,9 +88,9 @@ html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-html_theme_options = {
-    'bootswatch_theme': "darkly"
-}
+#html_theme_options = {
+#    'bootswatch_theme': "paper"
+#}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

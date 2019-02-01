@@ -38,7 +38,8 @@ UNKNOWN_DICT = {'-1': ''}
 UNKNOWN_LIST = [{'-1': ''}]
 UNKNOWN_STRING = "noname"
 
-STALE_THRESHOLD = 5  # This was going to be used to auto-update attributes when calling the property
+# This was going to be used to auto-update attributes when calling the property
+STALE_THRESHOLD = 5
 LAST_UPDATE_KEY = "lastupdate"  # Used in a dict to store the last update time
 
 # Creates a default logger if none is provided during instantiation
@@ -48,17 +49,26 @@ _LOGGER = logging.getLogger(__name__)
 class BlueIris:
     """Class which represents a Blue Iris server.
 
-    :param ClientSession aiosession: AIOHTTP Client Session to run the commands through (required)
-    :param str user: Username used to authenticate to the Blue Iris server.
-    :param str password: Password used to authenticate to the Blue Iris server.
-    :param str protocol: Protocol used to communicate with the Blue Iris server. This should be either `http` or
-        `https`.
-    :param str host: The IP address or FQDN used to communicate with the Blue Iris server.
-    :param int port: The port used to communicate with the Blue Iris server. This defauls to match `protocol` --
-        80 for `http` and 443 for `https`.
-    :param bool debug: Should we print extra debug messages? True if yes, False if no; defaults to False.
-    :param Logger logger: The Logger to log messages to. Specify your own if you want to control where the
-        log messages go. By default, uses the namespace `__name__` for logging.
+    This class uses a provided aiohttp.ClientSession with an internal 
+    helper client to talk with a Blue Iris server. Optionally you can 
+    provide a logging.Logger for it to use for logs. If none is 
+    provided, it will use one under its own namespace.
+
+    Parameters:
+        aiosession (aiohttp.ClientSession): Async Session for handling
+            requests to the Blue Iris server.
+        user (str): Username used to authenticate to the server.
+        password (str): Password used to authenticate to the server.
+        protocol (str): Protocol used to communicate with the server. 
+            This should be either `http` or `https`.
+        host (str): The IP address or FQDN of the Blue Iris server.
+        port (str): The port of the Blue Iris server. This defauls to 
+            match `protocol` -- 80 for `http` and 443 for `https`.
+        debug (boot): Should we print extra debug messages? True if yes,
+            False if no; defaults to False.
+        logger (logging.Logger): The Logger to log messages to. Specify 
+            your own if you want to control where the log messages go. 
+            By default, uses the namespace `__name__` for logging.
     """
 
     def __init__(self,
@@ -70,7 +80,7 @@ class BlueIris:
                  port="",
                  debug=False,
                  logger=_LOGGER):
-        """Initialize a representation of a Blue Iris server which can be interacted with."""
+        """Initialize object for interaction with the Blue Iris server."""
         self._attributes = dict()
         self._cameras = dict()
         self._camera_details = dict()
@@ -98,7 +108,31 @@ class BlueIris:
 
     @property
     def attributes(self):
-        """Return a dict of the Blue Iris server properties."""
+        """
+        Return a dict of the Blue Iris server properties.
+
+        The attributes dictionary has the following structure:
+
+        - name: The name of the Blue Iris server.
+        - profiles: A list of profiles on the server.
+        - iam_admin: True if our account is an admin.
+        - ptz_allowed: True if we are allowed to send PTZ commands.
+        - clips_allowed: True if we are allowed to access clips.
+        - schedules: A list of schedules on the server.
+        - version: The version of Blue Iris on the server.
+        - audio_allowed: True if audio is available.
+        - dio_available: True if dio is available.
+        - stream_timelimit: The streaming timelimit.
+        - license: The license used on the server.
+        - support: The date support ends.
+        - user: The username the server knows us by.
+        - longitude: The server's self-reported longitude.
+        - latitude: The server's self-reported latitude
+        - tzone: The timezone offset.
+        - streams: Available streams.
+        - sounds: List of sounds that can be used.
+        - www_sounds: List of sounds that can be used.
+        """
         return self._attributes
 
     @property
@@ -118,11 +152,29 @@ class BlueIris:
 
     @property
     def base_url(self):
-        """Return the configured base url, including protocol and port."""
+        """
+        Return the configured base url, including protocol and port.
+
+        Examples:
+            - https://192.168.1.15:8081/
+            - http://blueiris.local/
+            - https://blueiris.example.com:30125/
+        """
         return self._base_url
 
     async def setup_session(self):
-        """Log into the Blue Iris server and sets attributes values with server information."""
+        """
+        Log into the Blue Iris server and record basic server info.
+
+        Set up the session with the Blue Iris server by sending a login
+        command using Client. When the reply is received, we
+        check for an object of data about the server. We know if the
+        data dictionary is not in the reply that the login failed.
+
+        Returns:
+            False if the session did not get created successfully. True
+            on success.
+        """
         full_reply = await self.client.login(self.username, self.password)
         if "data" not in full_reply:
             self.logger.error(
@@ -176,10 +228,18 @@ class BlueIris:
 
     async def send_command(self, command: str, params=None):
         """
-        Send command to the Blue Iris server. Return a dict of data or True on success. Return False on failure.
-        
-        :param str command: Command to send to the server. See the JSON API reference for valid values
-        :param dict() params: Dictionary of extra parameters for the command. By default no extra parameters are sent.
+        Send command to the Blue Iris server and handle the response. 
+
+        Arguments:
+            command: Command to send to the server. See the JSON API 
+                reference for valid values
+
+        Other Parameters:
+            params (dict):  Parameters for the command. (Default: None)
+
+        Returns:
+            A dict of data or True on success and False on failure (if 
+            no data returned from server).
         """
         if not self.am_logged_in:
             # If we aren't logged in for some reason, let's log in again
@@ -212,14 +272,29 @@ class BlueIris:
 
     @property
     def cameras(self):
-        """Return list of cameras on Blue Iris."""
+        """
+        Return list of cameras on Blue Iris.
+
+        Returns:
+            A (list) of camera shortcodes on the server.
+        """
         cameras_as_list = list()
         for key in self._cameras:
             cameras_as_list.append(self._cameras[key])
         return cameras_as_list
 
     async def update_camlist(self):
-        """Update the camera config and camera list in attributes."""
+        """
+        Update the camera config and camera list in attributes.
+
+        This function sends the 'camlist' command to the server and
+        parses the result. It stores the full result in 
+        self.attributes.camconfig and creates a dictionary of the camera
+        shortcode and display names in self.attributes.cameras.
+
+        This makes it easier to go through what cameras are available
+        and how to reference them without cycling through a large dict.
+        """
         camlist = await self.send_command("camlist")
         self._attributes["cameras"] = dict()
         self._attributes[
@@ -241,10 +316,14 @@ class BlueIris:
 
     async def update_cliplist(self, camera="Index"):
         """
-        Update the list of clips in attributes for specified camera. If no camera is specified, includes all cameras.
-        
-        :param str camera: The shortname-code for the camera to update the list for. By default, it will send
-            "index" to update the list for all cameras.
+        Update the list of clips in attributes for specified camera. 
+
+        If no camera is specified, this will includes all cameras.
+
+        Arguments:
+            camera (str): The shortname-code for the camera to update 
+                the list for. By default, it will send "Index" to update
+                the list for all cameras.
         """
         if not await self.is_valid_camera(camera):
             # If you gave us an invalid camera shortname, we're going to use index.
@@ -268,10 +347,14 @@ class BlueIris:
 
     async def update_alertlist(self, camera="Index"):
         """
-        Update the list of alerts in attributes for specified camera. If no camera is specified, includes all cameras.
-        
-        :param str camera: The shortname-code for the camera to update the list for. By default, it will send
-            "index" to update the list for all cameras.
+        Update the list of alerts in attributes for specified camera. 
+
+        If no camera is specified, this includes all cameras.
+
+        Arguments:
+            camera (str): The shortname-code for the camera to update 
+                the list for. By default, it will send "Index" to update
+                the list for all cameras.
         """
         if not await self.is_valid_camera(camera):
             camera = "Index"
@@ -318,9 +401,15 @@ class BlueIris:
 
     async def is_valid_camera(self, cam_shortcode):
         """
-        Return True if cam_shortcode is a valid camera known to Blue Iris.
-        
-        :param str cam_shortcode: Camera shortcode to check for validity.
+        Return if cam_shortcode is a valid camera known to Blue Iris.
+
+        Arguments:
+            cam_shortcode (str): The shortname-code for the camera to
+                check for validity.
+
+        Returns:
+            True if cam_shortcode is a valid camera shortcode, otherwise
+            False.
         """
         if not self._attributes["cameras"]:
             # Update our list of cameras if it doesn't exist.
@@ -335,7 +424,8 @@ class BlueIris:
     async def reset_camera(self, camera):
         """Send camconfig command to reset camera.
 
-        :param str camera: The camera shortcode for the camera to send this command to.
+        Arguments:
+            camera (str): The shortname-code for the camera to reset.
         """
         if await self.is_valid_camera(camera):
             await self.send_command("camconfig", {
@@ -346,8 +436,13 @@ class BlueIris:
     async def enable_camera(self, camera, enabled=True):
         """Send camconfig command to enable camera.
 
-        :param bool enabled: True to enable the camera, False to disable. Defaults to True.
-        :param str camera: The camera shortcode for the camera to send this command to.
+        Arguments:
+            camera (str): The shortname-code for the camera to enable or
+                disable.
+        
+        Other Parameters:
+            enabled (bool): True to enable camera, False to disable.
+                (Default: True)
         """
         if await self.is_valid_camera(camera):
             await self.send_command("camconfig", {
@@ -357,8 +452,9 @@ class BlueIris:
 
     async def unpause_camera(self, camera):
         """Send camconfig command to pause camera.
-
-        :param str camera: The camera shortcode for the camera to send this command to.
+        
+        Arguments:
+            camera (str): The shortname-code for the camera to unpause
         """
         if await self.is_valid_camera(camera):
             await self.send_command("camconfig", {
@@ -368,8 +464,10 @@ class BlueIris:
 
     async def pause_camera_indefinitely(self, camera):
         """Send camconfig command to pause camera.
-
-        :param str camera: The camera shortcode for the camera to send this command to.
+        
+        Arguments:
+            camera (str): The shortname-code for the camera to pause
+                until it is sent an unpause command.
         """
         if await self.is_valid_camera(camera):
             await self.send_command("camconfig", {
@@ -380,7 +478,10 @@ class BlueIris:
     async def pause_camera_add30seconds(self, camera):
         """Send camconfig command to pause camera.
 
-        :param str camera: The camera shortcode for the camera to send this command to.
+        
+        Arguments:
+            camera (str): The shortname-code for the camera to pause for
+                an additional 30 seconds.
         """
         if await self.is_valid_camera(camera):
             await self.send_command("camconfig", {
@@ -391,7 +492,10 @@ class BlueIris:
     async def pause_camera_add1minute(self, camera):
         """Send camconfig command to pause camera.
 
-        :param str camera: The camera shortcode for the camera to send this command to.
+        
+        Arguments:
+            camera (str): The shortname-code for the camera to pause for
+                an additional minute.
         """
         if await self.is_valid_camera(camera):
             await self.send_command("camconfig", {
@@ -402,7 +506,9 @@ class BlueIris:
     async def pause_camera_add1hour(self, camera):
         """Send camconfig command to pause camera.
 
-        :param str camera: The camera shortcode for the camera to send this command to.
+        Arguments:
+            camera (str): The shortname-code for the camera to pause for
+                an additional hour.
         """
         if await self.is_valid_camera(camera):
             await self.send_command("camconfig", {
@@ -414,8 +520,10 @@ class BlueIris:
         """
         Send camconfig command to pause camera for seconds (rounded down to nearest 30 seconds).
         
-        :param str camera: The camera shortcode for the camera to send this command to.
-        :param int seconds: The number of seconds to pause the camera (will get rounded down to nearest 30 seconds).
+        Arguments:
+            camera (str): The shortname-code for the camera to pause.
+            seconds (int): The number of seconds to pause the camera. 
+                (Note: this will get rounded down to nearest 30 seconds).
         """
         if seconds < 30:
             seconds = 30
@@ -447,9 +555,14 @@ class BlueIris:
         """
         Send camconfig command to pause camera.
 
-        :param str camera: The camera shortcode for the camera to send this command to.
-        :param bool motion_enabled: This is True to enable motion detection, False to disable. If neither is specified,
-            this will enable motion detection.
+        
+        Arguments:
+            camera (str): The shortname-code for the camera to enable or
+                disable motion-detection on.
+        
+        Other Parameters:
+            motion_enabled (bool): True to enable motion detection, 
+                False to disable. (Default: True)
         """
         if await self.is_valid_camera(camera):
             await self.send_command("camconfig", {
@@ -460,9 +573,16 @@ class BlueIris:
     async def set_camera_schedule(self, camera, camera_schedule_enabled=True):
         """
         Send camconfig command to enable or disable the caerma's custom schedule.
+
         
-        camera - shortcode for the camera to send the command to
-        camera_schedule_enabled - True to enable, False to disable (default True)
+        Arguments:
+            camera (str): The shortname-code for the camera to update 
+            the list for. By default, it will send "Index" to update the
+            list for all cameras.
+        
+        Other Parameters:
+            camera_schedule_enabled (bool): True to enable, False to 
+                disable. (Default: True)
         """
         if await self.is_valid_camera(camera):
             await self.send_command("camconfig", {
@@ -473,9 +593,16 @@ class BlueIris:
     async def set_camera_ptzcycle(self, camera, preset_cycle_enabled=True):
         """
         Send camconfig command to enable or disable the preset cycle feature.
+
         
-        :param str camera: The camera shortcode for the camera to send this command to.
-        :param bool preset_cycle_enabled: True to enable, False to disable (default True)
+        Arguments:
+            camera (str): The shortname-code for the camera to update 
+            the list for. By default, it will send "Index" to update the
+            list for all cameras.
+        
+        Other Parameters:
+            preset_cycle_enabled (bool): True to enable, False to 
+                disable. (Default: True)
         """
         if await self.is_valid_camera(camera):
             await self.send_command("camconfig", {
@@ -488,9 +615,16 @@ class BlueIris:
                                            ptz_event_schedule_enabled=True):
         """
         Send camconfig command to enable or disable the PTZ event schedule.
+
         
-        :param str camera: The camera shortcode for the camera to send this command to.
-        :param bool ptz_event_schedule_enabled: True to enable, False to disable (default True)
+        Arguments:
+            camera (str): The shortname-code for the camera to update 
+                the list for. By default, it will send "Index" to update 
+                the list for all cameras.
+        
+        Other Parameters:
+            ptz_event_schedule_enabled (bool): True to enable, False to 
+                disable. (Default: True)
         """
         if await self.is_valid_camera(camera):
             await self.send_command("camconfig", {
@@ -501,9 +635,14 @@ class BlueIris:
     async def send_ptz_command(self, camera, command: PTZCommand):
         """
         Operate a camera's PTZ functionality.
+
         
-        :param str camera: The camera shortcode for the camera to send this command to.
-        :param PTZCommand command: a valid PTZCommand (use the enum)
+        Arguments:
+            camera (str): The shortname-code for the camera to update 
+                the list for. By default, it will send "Index" to update
+                the list for all cameras.
+            command: A valid PTZCommand. (Use the 
+                pyblueiris.const.PTZCommand Enum)
         """
         if await self.is_valid_camera(camera):
             await self.send_command("ptz", {
@@ -514,43 +653,51 @@ class BlueIris:
 
     async def set_status_signal(self, signal: Signal):
         """
-        Send command to set the Blue Iris server signal.
-        
-        :param Signal signal: The signal to set on Blue Iris server (use the enum)
+        Set the signal on the Blue Iris.
+
+        Arguments:
+            signal: The signal to set on Blue Iris server. (Use the
+                pyblueiris.const.Signal Enum.)
         """
         await self.send_command("status", {"signal": signal.value})
 
     async def set_status_profile(self, profile_index: int):
         """
-        Send command to set the current profile using the index of the profile.
-        
-        :param int profile_index: index of the profile to set.
+        Set the current profile using the index of the profile.
+
+        Arguments:
+            profile_index: Index of the profile to set.
         """
         await self.send_command("status", {"profile": profile_index})
 
     async def set_status_profile_by_name(self, profile_name: str):
         """
-        Send command to set the current profile using the name of the profile.
-        
-        :param str profile_name: name of the profile you want to set
+        Set the current profile using the name of the profile.
+
+        Arguments:
+            profile_name: Name of the profile to set active on the server.
         """
         profile_ind = self._attributes["profiles"].index(profile_name)
         await self.set_status_profile(profile_ind)
 
     async def set_sysconfig_archive(self, archive_enabled: bool):
         """
-        Send command to enable or disable web archiving.
-        
-        :param bool archive_enabled: True to enable web archiving, False to disable
+        Enable or disable web archiving.
+
+        Arguments:
+            archive_enabled: True to enable web archiving, False to 
+                disable
         """
         if self._attributes["iam_admin"]:
             await self.send_command("sysconfig", {"archive": archive_enabled})
 
     async def set_sysconfig_schedule(self, global_schedule_enabled: bool):
         """
-        Send command to enable or disable the global schedule.
-        
-        :param bool global_schedule_enabled: True to enable the global schedule, False to disable
+        Enable or disable the global schedule.
+
+        Arguments:
+            global_schedule_enabled: True to enable the global schedule, 
+                False to disable
         """
         if self._attributes["iam_admin"]:
             await self.send_command("sysconfig",
@@ -559,8 +706,9 @@ class BlueIris:
     async def trigger_camera_motion(self, camera):
         """
         Send trigger command to specific camera.
-        
-        :param str camera: The camera shortcode for the camera to send this command to.
+
+        Arguments:
+            camera (str): The shortname-code for the camera to trigger.
         """
         if not self._attributes["iam_admin"]:
             self.logger.error(
@@ -569,13 +717,18 @@ class BlueIris:
         if await self.is_valid_camera(camera):
             await self.send_command("trigger", {"camera": camera})
 
-    async def get_camera_details(self, camera_shortname):
+    async def get_camera_details(self, camera):
         """
-        Return the camera details for requested camera. If last update was UPDATE_THRESHOLD seconds ago, refresh.
-
-        :param str camera_shortname: The camera shortcode for the camera to send this command to.
+        Return the camera details for requested camera. 
+        
+        If last update was UPDATE_THRESHOLD seconds ago, it will request
+        updated information for that camera from the Blue Iris server.
+        
+        Arguments:
+            camera (str): The shortname-code for the camera to update 
+            details for. 
         """
         if time.time(
         ) - self._camera_details[LAST_UPDATE_KEY] > STALE_THRESHOLD:
             await self.update_camlist()
-        return self._camera_details[camera_shortname]
+        return self._camera_details[camera]
